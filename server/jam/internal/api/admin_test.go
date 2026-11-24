@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"katmusic/jam/internal/rooms"
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/rooms"
+	"wavetune/jam/internal/wire"
 )
 
 type adminEnv struct {

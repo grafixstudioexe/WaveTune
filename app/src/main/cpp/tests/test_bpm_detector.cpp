@@ -9,7 +9,7 @@
 #endif
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     BpmPhaseDetector detector;
     detector.configure(48000.0);
 

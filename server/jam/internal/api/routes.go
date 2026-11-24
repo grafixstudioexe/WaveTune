@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"katmusic/jam/internal/rooms"
+	"wavetune/jam/internal/rooms"
 )
 
 //go:embed web/*
@@ -70,7 +70,7 @@ func (h *Handler) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]any{
-		"service": "katmusic-jam",
+		"service": "wavetune-jam",
 		"status":  "healthy",
 		"version": "1.0.0",
 		"uptime":  time.Since(h.startTime).String(),

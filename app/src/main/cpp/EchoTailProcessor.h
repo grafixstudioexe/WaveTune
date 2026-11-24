@@ -6,7 +6,7 @@
 #include <array>
 #include <algorithm>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -230,4 +230,4 @@ private:
     std::array<AllPassFilter, 2> allPassR_{};
 };
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

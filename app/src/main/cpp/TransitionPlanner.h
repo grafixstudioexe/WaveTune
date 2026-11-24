@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 enum class PhraseLengthMode : int32_t {
     Auto = 0,
@@ -96,4 +96,4 @@ public:
     ) noexcept;
 };
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

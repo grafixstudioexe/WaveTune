@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 func TestHub_CreateRoomAndJoin(t *testing.T) {

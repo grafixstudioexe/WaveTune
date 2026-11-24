@@ -9,16 +9,16 @@
 -keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
 
 # JNI exports use the Kotlin class and method names verbatim.
--keep class com.itzfallenme.katmusic.playback.NativeAudioEngine { *; }
+-keep class com.arynis.wavetune.playback.NativeAudioEngine { *; }
 
 # kotlinx.serialization: keep generated serializers and Serializable models
--keepclassmembers class com.itzfallenme.katmusic.** {
+-keepclassmembers class com.arynis.wavetune.** {
     *** Companion;
 }
--keepclasseswithmembers class com.itzfallenme.katmusic.** {
+-keepclasseswithmembers class com.arynis.wavetune.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keep,includedescriptorclasses class com.itzfallenme.katmusic.**$$serializer { *; }
+-keep,includedescriptorclasses class com.arynis.wavetune.**$$serializer { *; }
 -keepclassmembers @kotlinx.serialization.Serializable class * {
     *** Companion;
     kotlinx.serialization.KSerializer serializer(...);
@@ -40,7 +40,7 @@
 -keep class * extends androidx.glance.appwidget.action.ActionCallback { *; }
 -keep class * extends androidx.glance.appwidget.GlanceAppWidget { *; }
 -keep class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver { *; }
--keep class com.itzfallenme.katmusic.widget.** { *; }
+-keep class com.arynis.wavetune.widget.** { *; }
 
 # NewPipe's YouTube extractor loads service implementations and its
 # JavaScript deobfuscation engine dynamically.
@@ -87,8 +87,8 @@
 # Keep all InnerTube Search, Browse, and Music JSON data models
 -keep @androidx.annotation.Keep class * { *; }
 -keepclassmembers @androidx.annotation.Keep class * { *; }
--keep class com.itzfallenme.katmusic.data.music.** { *; }
--keepclassmembers class com.itzfallenme.katmusic.data.music.** { *; }
--keep class com.itzfallenme.katmusic.data.podcast.** { *; }
--keepclassmembers class com.itzfallenme.katmusic.data.podcast.** { *; }
+-keep class com.arynis.wavetune.data.music.** { *; }
+-keepclassmembers class com.arynis.wavetune.data.music.** { *; }
+-keep class com.arynis.wavetune.data.podcast.** { *; }
+-keepclassmembers class com.arynis.wavetune.data.podcast.** { *; }
 

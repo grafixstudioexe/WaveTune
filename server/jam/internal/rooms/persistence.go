@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"katmusic/jam/internal/store"
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/store"
+	"wavetune/jam/internal/wire"
 )
 
 // EnablePersistence attaches a Supabase store. Passing nil keeps the hub

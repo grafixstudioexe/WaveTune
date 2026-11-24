@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 func TestChatBuffer_KeepsADayButAppsGetTheLatest(t *testing.T) {

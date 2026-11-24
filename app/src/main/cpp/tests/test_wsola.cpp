@@ -9,7 +9,7 @@
 #endif
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     WsolaTimeStretcher stretcher;
     stretcher.configure(48000.0, 2);
 

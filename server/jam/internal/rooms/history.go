@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // Ended rooms are kept for 24 hours for the admin panel (room details, who was

@@ -79,11 +79,11 @@ kotlin {
 
 compose.resources {
     publicResClass = true
-    packageOfResClass = "com.itzfallenme.katmusic.shared.resources"
+    packageOfResClass = "com.arynis.wavetune.shared.resources"
 }
 
 android {
-    namespace = "com.itzfallenme.katmusic.shared"
+    namespace = "com.arynis.wavetune.shared"
     compileSdk = 37
 
     defaultConfig {

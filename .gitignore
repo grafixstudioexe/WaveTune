@@ -51,7 +51,7 @@ Thumbs.db
 *.obj
 jam-ref
 ref
-katmusic-diag*
+wavetune-diag*
 # Credentials & Environment
 Screenshot/release.jks
 keystore_credentials.txt
@@ -90,7 +90,7 @@ docs/superpowers/
 reference screenshot/
 
 # Reference trees and local scratch
-legacy-katmusic/
+legacy-wavetune/
 *.har
 run_log*.txt
 build_log.txt

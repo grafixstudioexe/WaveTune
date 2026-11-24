@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"katmusic/jam/internal/api"
-	"katmusic/jam/internal/rooms"
-	"katmusic/jam/internal/store"
+	"wavetune/jam/internal/api"
+	"wavetune/jam/internal/rooms"
+	"wavetune/jam/internal/store"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	slog.Info("initializing KatMusic Jam server", "port", port)
+	slog.Info("initializing WaveTune Jam server", "port", port)
 
 	hub := rooms.NewHub()
 
@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	<-stopChan
-	slog.Info("shutting down KatMusic Jam server...")
+	slog.Info("shutting down WaveTune Jam server...")
 
 	// Snapshot before closing sockets: leaving can hand the host role over and
 	// clear the shared queue, which is not the state we want to wake up with.

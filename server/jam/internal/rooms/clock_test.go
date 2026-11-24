@@ -3,7 +3,7 @@ package rooms
 import (
 	"testing"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 func TestCompensateTransit(t *testing.T) {

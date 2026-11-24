@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"katmusic/jam/internal/api"
-	"katmusic/jam/internal/rooms"
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/api"
+	"wavetune/jam/internal/rooms"
+	"wavetune/jam/internal/wire"
 )
 
 // wsHelper connects to the test server and manages read/write for E2E tests.
@@ -169,7 +169,7 @@ func TestE2E_FullListenTogetherFlow(t *testing.T) {
 
 	// 5. Alice sends a chat message
 	alice.send(wire.MsgTypeSendChat, wire.SendChatPayload{
-		Text: "Welcome to KatMusic party Bob!",
+		Text: "Welcome to WaveTune party Bob!",
 	})
 
 	// Both Alice and Bob should receive the chat message
@@ -182,7 +182,7 @@ func TestE2E_FullListenTogetherFlow(t *testing.T) {
 
 	var chatMsg wire.ChatMessage
 	_ = json.Unmarshal(bobChat.Payload, &chatMsg)
-	if chatMsg.UserName != "Alice" || chatMsg.Text != "Welcome to KatMusic party Bob!" {
+	if chatMsg.UserName != "Alice" || chatMsg.Text != "Welcome to WaveTune party Bob!" {
 		t.Fatalf("unexpected chat message content: %+v", chatMsg)
 	}
 

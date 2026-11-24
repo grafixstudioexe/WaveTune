@@ -4,7 +4,7 @@
 #include <cstring>
 #include <algorithm>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -795,4 +795,4 @@ std::int64_t AutoMixEngine::getDeckBDropBeatMs() const noexcept {
     return deckBDropBeatMs_;
 }
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

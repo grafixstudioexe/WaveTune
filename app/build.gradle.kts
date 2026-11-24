@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    namespace = "com.itzfallenme.katmusic"
+    namespace = "com.arynis.wavetune"
     // Compose 1.12.0 and current playback dependencies require Android API 37.
     compileSdk = 37
 
@@ -61,11 +61,11 @@ android {
         "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
     defaultConfig {
-        applicationId = "com.itzfallenme.katmusic"
+        applicationId = "com.arynis.wavetune"
         minSdk = (project.findProperty("minSdk") as? String)?.toIntOrNull() ?: 29
         targetSdk = 35
-        versionCode = 2605
-        versionName = "2.6.5"
+        versionCode = 1
+        versionName = "1.0.0"
 
         (project.findProperty("targetAbis") as? String)?.let { prop ->
             ndk {
@@ -298,7 +298,7 @@ dependencies {
     // Pinned to the same 1.2.1 line as exoplayer/hls to avoid binary mismatch.
     implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
     // MediaBrowserServiceCompat/MediaSessionCompat bridge used by Android
-    // Auto to browse the KatMusic library and control the same player.
+    // Auto to browse the WaveTune library and control the same player.
     implementation("androidx.media:media:1.7.0")
 
     // GPLv3 Media3-matched FFmpeg software decoder (distribution must comply).

@@ -66,18 +66,18 @@ tasks.test {
 
 compose.desktop {
     application {
-        mainClass = "com.itzfallenme.katmusic.desktop.MainKt"
+        mainClass = "com.arynis.wavetune.desktop.MainKt"
         nativeDistributions {
             targetFormats(
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
             )
-            packageName = "KatMusic"
-            packageVersion = "2.6.5"
-            description = "KatMusic - local music and YouTube playback for desktop"
-            vendor = "KatMusic"
-            copyright = "(c) 2026 KatMusic"
+            packageName = "WaveTune"
+            packageVersion = "1.0.0"
+            description = "WaveTune - local music and YouTube playback for desktop"
+            vendor = "ARYNIS Arc"
+            copyright = "(c) 2026 ARYNIS Arc - GPL-3.0"
 
             // The trimmed jlink runtime omits these by default. HTTP clients
             // power lyrics/providers/Last.fm, the embedded callback server
@@ -93,19 +93,19 @@ compose.desktop {
             )
 
             macOS {
-                bundleID = "com.itzfallenme.katmusic"
-                dockName = "KatMusic"
+                bundleID = "com.arynis.wavetune"
+                dockName = "WaveTune"
             }
             windows {
-                menuGroup = "KatMusic"
-                // Stable identity so a newer MSI upgrades the existing install
-                // instead of creating a second KatMusic entry.
-                upgradeUuid = "3f1b5c9e-6d2a-4f7b-9a1c-2e8d4b6f0a13"
+                menuGroup = "WaveTune"
+                // Separate identity from WaveTune so the two installs coexist.
+                upgradeUuid = "8c4a2f61-3d7b-4e9a-b2c8-5f1d6e7a9c04"
                 shortcut = true
             }
             linux {
-                packageName = "katmusic"
-                debMaintainer = "KatMusic <katmusic@users.noreply.github.com>"
+                packageName = "wavetune"
+                // The plugin prefixes this with `vendor`, so keep only the email here.
+                debMaintainer = "noreply@wavetune.app"
                 menuGroup = "Audio"
                 appCategory = "AudioVideo"
             }

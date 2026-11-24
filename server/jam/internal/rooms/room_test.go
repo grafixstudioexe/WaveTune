@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // mockClient creates a test client with buffered channel.

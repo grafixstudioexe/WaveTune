@@ -1,6 +1,6 @@
-# KatMusic → Kotlin Multiplatform / Compose Multiplatform
+# WaveTune → Kotlin Multiplatform / Compose Multiplatform
 
-This document records the migration of KatMusic to a single Kotlin
+This document records the migration of WaveTune to a single Kotlin
 Multiplatform build with one shared Compose UI for Android and desktop, and the
 parts that intentionally stay platform-specific.
 
@@ -22,9 +22,9 @@ and replaced by `:desktop`.
 
 ## What is now shared Kotlin/Compose (`:shared`, `commonMain`)
 
-- **Design system** — `ui/theme`: `KatMusicTheme`, `ThemeUiState`, Figtree type
+- **Design system** — `ui/theme`: `WaveTuneTheme`, `ThemeUiState`, Figtree type
   scale (bundled in `composeResources/font`), shape scale, `PaletteBuilder`
-  (seeded, monochrome and KatMusic signature palettes).
+  (seeded, monochrome and WaveTune signature palettes).
 - **Motion** — `ui/components/MotionSpec` (springs, transitions, press-scale)
   and `expressiveBounceClickable`.
 - **Adaptive layout** — `WindowSizeClass` / `rememberWindowSizeClass` now read
@@ -50,11 +50,11 @@ and replaced by `:desktop`.
   local lyrics win over every provider.
   Tests: `LrcParserTest` (shared, 9 cases) and `DesktopLyricsProviderTest`
   (sidecar precedence, case-insensitive match, empty/missing sidecar fallback,
-  plus a live LRCLIB lookup that runs when `KATMUSIC_NETWORK_TESTS=1`).
+  plus a live LRCLIB lookup that runs when `WAVETUNE_NETWORK_TESTS=1`).
 - **Settings** — `AppSettings`, `SettingsStore` contract and
   `AppSettings.toThemeUiState()`; the appearance switches, their meaning and
   the palette mapping are shared, only persistence differs.
-- **UI shell and screens** — `shared/ui`: responsive `KatMusicApp` (bottom bar
+- **UI shell and screens** — `shared/ui`: responsive `WaveTuneApp` (bottom bar
   on compact, rail on wide), Navigation-Compose graph with shared transitions,
   `PlayerDock`, `LibraryScreen`, `SearchScreen`, `NowPlayingScreen`,
   `SettingsScreen`, `Artwork` (Coil 3, multiplatform) and `TrackRow`.
@@ -94,7 +94,7 @@ off.
   `AdaptiveLayout`; those files were deleted and `:app` compiles against
   `:shared`. Android's 130+ feature screens therefore render with the shared
   theme, type scale, shapes and motion today.
-- The **desktop application runs the full shared UI** (`KatMusicApp`) with real
+- The **desktop application runs the full shared UI** (`WaveTuneApp`) with real
   platform implementations.
 - **Not yet ported:** Android's individual feature screens (Home feed, artist,
   album, playlist, jam, lyrics, downloads, podcast, settings sub-pages)
@@ -110,8 +110,8 @@ off.
   persists `AppSettings` in SharedPreferences, `Media3PlayerController`
   (`:app`) implements the shared `PlayerController` on top of the process-wide
   `MusicPlayer` (the same Media3 instance the MediaSession, widgets and USB
-  output use), and `SharedShellActivity` hosts `KatMusicApp` with those
-  implementations, reachable at `katmusic://shared`. The main Android UI keeps
+  output use), and `SharedShellActivity` hosts `WaveTuneApp` with those
+  implementations, reachable at `wavetune://shared`. The main Android UI keeps
   being the launcher and is untouched; promoting the shared shell to the
   default launcher is what the remaining screen port unblocks.
 - The shared screen set now covers Library with Songs/Albums/Artists views,
@@ -130,13 +130,13 @@ The shared shell now has three feature slices, each a contract in
 - **Downloads** (`DownloadsRepository`) — Android bridges the app's real Room
   download table (`DownloadedTrackDao`) and deletes files through the app's own
   `TrackDownloadManager` (MediaStore entries and sidecar `.lrc` included).
-  Desktop keeps a file store under `~/KatMusic/Downloads` with a JSON index
+  Desktop keeps a file store under `~/WaveTune/Downloads` with a JSON index
   sidecar; deleting removes the actual audio file. The shared Downloads screen
   lists, plays and deletes with a confirm dialog, and shows the real total size.
 - **Playlists** (`PlaylistsRepository`) — Android persists in the app's
   `saved_playlists` Room table (mode `custom`), so a playlist made in the shell
   appears in the main Android app and vice versa. Desktop stores one portable
-  `.m3u` file per playlist in `~/KatMusic/Playlists`; the parser refreshes tags
+  `.m3u` file per playlist in `~/WaveTune/Playlists`; the parser refreshes tags
   from disk and keeps entries whose files disappeared (unplayable rather than
   silently missing). Tests: `M3uPlaylistsRepositoryTest` (round-trip, missing
   files, add/remove/delete, streams rejected for local playlists).
@@ -220,7 +220,7 @@ has, with a working desktop build. Its layout, read from the source:
 The key takeaway: **SimpMusic did not write a small JSON resolver.** It ported a
 full extractor, added a JS engine for ciphers plus a hosted decode service as
 fallback, and replaced the desktop audio backend with a native media library.
-KatMusic now uses the same extractor + hosted-decode + mpv method.
+WaveTune now uses the same extractor + hosted-decode + mpv method.
 
 Re-running their exact client table and API keys from this machine still
 returns `LOGIN_REQUIRED` ("Sign in to confirm you're not a bot"), and so do both
@@ -246,7 +246,7 @@ Settings → YouTube). The KMP desktop now implements the receiving half in
 `desktop/data/YtPhonePairing.kt`, matching that protocol exactly:
 
 - Desktop binds a random LAN port and shows a QR containing
-  `{type: "katmusic-youtube-pair", v: 1, hosts, port, path, code, key, expiresAt}`.
+  `{type: "wavetune-youtube-pair", v: 1, hosts, port, path, code, key, expiresAt}`.
   The key is a 32-byte AES key; the code is a one-use secret; the QR lives five
   minutes.
 - Phone `GET /v1/yt-pair/request?code&device&client` → `requestId`; a second
@@ -257,7 +257,7 @@ Settings → YouTube). The KMP desktop now implements the receiving half in
   `{nonce, ciphertext}` (AES-256-GCM, 12-byte nonce). The desktop decrypts,
   verifies a SAPISID-family cookie is present, accepts the payload once, and
   sets `received`.
-- `YouTubeSessionStore` writes `~/KatMusic/youtube-session.json` with
+- `YouTubeSessionStore` writes `~/WaveTune/youtube-session.json` with
   owner-only POSIX permissions and applies the cookie header immediately.
 - `NewPipeStreamResolver` sends `ServiceList.YouTube.tokens = cookies` before
   each extraction (PipePipe then derives both `Cookie` and
@@ -323,7 +323,7 @@ provider's real reason when they refuse.
 `./gradlew :app:assembleDebug` packages the Android application (Hilt/KSP,
 Room, Media3, the CMake DSP module and the manifest entry for the shared
 shell), and `./gradlew :desktop:createDistributable` produced
-`desktop/build/compose/binaries/main/app/KatMusic`.
+`desktop/build/compose/binaries/main/app/WaveTune`.
 
 The packaged desktop binary was started in this environment and stopped at
 Skiko initialisation: `libGL.so.1: cannot open shared object file`. That is a

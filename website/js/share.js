@@ -7,7 +7,7 @@
   const actions = $("shActions"), open = $("shOpen"), yt = $("shYt"), copy = $("shCopy");
   const status = $("shStatus");
 
-  const PACKAGE = "com.itzfallenme.katmusic";
+  const PACKAGE = "com.arynis.wavetune";
   const validVideo = (v) => /^[A-Za-z0-9_-]{6,24}$/.test((v || "").trim());
   const CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
   const params = new URLSearchParams(location.search);
@@ -15,10 +15,13 @@
   const onIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const skipAuto = params.get("noapp") === "1";
 
-  function decodeKatMusicCode(raw) {
+  function decodeWaveTuneCode(raw) {
     let normalized = (raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-    if (normalized.startsWith("KM") && normalized.length === 22) {
-      normalized = normalized.slice(2);
+    for (const prefix of ["WT", "KM"]) {
+      if (normalized.startsWith(prefix) && normalized.length === 22) {
+        normalized = normalized.slice(2);
+        break;
+      }
     }
     if (normalized.length !== 20) return null;
 
@@ -53,12 +56,12 @@
   function parseTarget(raw) {
     const text = (raw || "").trim();
     if (!text) return null;
-    const directCode = decodeKatMusicCode(text);
+    const directCode = decodeWaveTuneCode(text);
     if (directCode) return { v: directCode, title: "", artist: "", album: "", art: "" };
     try {
       const url = new URL(text.includes("://") ? text : `https://${text}`);
       const videoId = (url.searchParams.get("v") || "").trim() ||
-        decodeKatMusicCode(url.searchParams.get("code")) || "";
+        decodeWaveTuneCode(url.searchParams.get("code")) || "";
       if (!validVideo(videoId)) return null;
       return {
         v: videoId,
@@ -80,7 +83,7 @@
     return q;
   }
 
-  const deepLink = (q) => `katmusic://track?${q.toString()}`;
+  const deepLink = (q) => `wavetune://track?${q.toString()}`;
   const pageLink = (q) => `${location.origin}${location.pathname}?${q.toString()}`;
 
   /* Android Chrome opens the app directly from an intent:// URL and uses
@@ -88,7 +91,7 @@
      "page cannot be opened" error a bare custom scheme leaves behind. */
   function intentLink(q) {
     const fallback = `${pageLink(q)}&noapp=1`;
-    return `intent://track?${q.toString()}#Intent;scheme=katmusic;package=${PACKAGE};S.browser_fallback_url=${encodeURIComponent(fallback)};end`;
+    return `intent://track?${q.toString()}#Intent;scheme=wavetune;package=${PACKAGE};S.browser_fallback_url=${encodeURIComponent(fallback)};end`;
   }
 
   function launch(data) {
@@ -101,14 +104,14 @@
     if (autoAttempted) return;
     autoAttempted = true;
     if (skipAuto) {
-      status.textContent = "KatMusic is not installed on this device yet. Install it below, then open this link again.";
+      status.textContent = "WaveTune is not installed on this device yet. Install it below, then open this link again.";
       return;
     }
     if (onIOS) {
-      status.textContent = "KatMusic runs on Android, Windows, macOS and Linux — there is no iPhone or iPad build yet.";
+      status.textContent = "WaveTune runs on Android, Windows, macOS and Linux — there is no iPhone or iPad build yet.";
       return;
     }
-    status.textContent = "Opening KatMusic…";
+    status.textContent = "Opening WaveTune…";
     launch(data);
     const started = Date.now();
     setTimeout(() => {
@@ -117,8 +120,8 @@
       if (document.hidden || document.visibilityState !== "visible") return;
       if (Date.now() - started < 1200) return;
       status.textContent = onAndroid
-        ? "KatMusic did not open. It may not be installed — download it below, or listen on YouTube Music."
-        : "If KatMusic did not open, it may not be installed. Get it below, or listen on YouTube Music.";
+        ? "WaveTune did not open. It may not be installed — download it below, or listen on YouTube Music."
+        : "If WaveTune did not open, it may not be installed. Get it below, or listen on YouTube Music.";
     }, 2200);
   }
 
@@ -126,9 +129,9 @@
     if (!data || !validVideo(data.v)) {
       actions.hidden = true;
       form.hidden = false;
-      status.textContent = params.has("code") && !decodeKatMusicCode(params.get("code"))
-        ? "That KatMusic Code is not valid. Check the code and try again."
-        : "Paste a KatMusic link, YouTube Music link, or KatMusic Code.";
+      status.textContent = params.has("code") && !decodeWaveTuneCode(params.get("code"))
+        ? "That WaveTune Code is not valid. Check the code and try again."
+        : "Paste a WaveTune link, YouTube Music link, or WaveTune Code.";
       return;
     }
     const q = shareQuery(data);
@@ -137,10 +140,10 @@
 
     const name = data.title || "Shared track";
     title.textContent = name;
-    artist.textContent = data.artist || "KatMusic";
+    artist.textContent = data.artist || "WaveTune";
     album.textContent = data.album || "";
     album.hidden = !data.album;
-    document.title = `${name} — KatMusic`;
+    document.title = `${name} — WaveTune`;
 
     const image = data.art || `https://i.ytimg.com/vi/${encodeURIComponent(data.v)}/hqdefault.jpg`;
     art.src = image;
@@ -153,26 +156,26 @@
     yt.href = `https://music.youtube.com/watch?v=${encodeURIComponent(data.v)}`;
     actions.hidden = false;
     form.hidden = true;
-    status.textContent = "Opening KatMusic…";
+    status.textContent = "Opening WaveTune…";
     copy.onclick = async () => {
       try {
         await navigator.clipboard.writeText(page);
-        status.textContent = "Link copied. Send it to anyone — it opens in KatMusic on their device.";
+        status.textContent = "Link copied. Send it to anyone — it opens in WaveTune on their device.";
       } catch {
         const area = document.createElement("textarea");
         area.value = page; document.body.append(area); area.select();
         document.execCommand("copy"); area.remove();
-        status.textContent = "Link copied. Send it to anyone — it opens in KatMusic on their device.";
+        status.textContent = "Link copied. Send it to anyone — it opens in WaveTune on their device.";
       }
     };
     open.onclick = () => {
-      status.textContent = "Opening KatMusic… If nothing happens, install it below or use YouTube Music.";
+      status.textContent = "Opening WaveTune… If nothing happens, install it below or use YouTube Music.";
     };
     if (initial) tryAutoOpen(data);
   }
 
   const initial = {
-    v: params.get("v") || decodeKatMusicCode(params.get("code")) || "",
+    v: params.get("v") || decodeWaveTuneCode(params.get("code")) || "",
     title: params.get("title") || "",
     artist: params.get("artist") || "",
     album: params.get("album") || "",
@@ -181,7 +184,7 @@
   render(initial, false, true);
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && !actions.hidden) status.textContent = "Opening KatMusic…";
+    if (document.hidden && !actions.hidden) status.textContent = "Opening WaveTune…";
   });
 
   form.addEventListener("submit", (event) => {

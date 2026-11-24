@@ -5,16 +5,16 @@ import (
 	"sort"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // Room administration used by the web admin panel and host hand-off.
 
 var ErrUserNotInRoom = errors.New("user not in room")
 
-const systemUserName = "KatMusic"
+const systemUserName = "WaveTune"
 
-// postSystemChat adds a KatMusic system line to the room chat.
+// postSystemChat adds a WaveTune system line to the room chat.
 func (r *Room) postSystemChat(text string) {
 	msg := wire.ChatMessage{
 		ID:        GenerateID("msg_"),

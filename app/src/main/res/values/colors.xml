@@ -3,8 +3,8 @@
     <!-- hsl(0, 5%, 6%): the same formula PaletteBuilder uses for the md
          background token, evaluated at the default hue so the splash screen
          never flashes a mismatched color. -->
-    <color name="splash_background">#FF100F0F</color>
+    <color name="splash_background">#FF0C1215</color>
 
     <!-- Adaptive-icon background: the logo sits on solid black. -->
-    <color name="ic_launcher_background">#FF000000</color>
+    <color name="ic_launcher_background">#FF0C1215</color>
 </resources>

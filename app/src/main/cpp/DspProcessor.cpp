@@ -5,7 +5,7 @@
 #include <mutex>
 #include <vector>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 namespace {
 
 constexpr double kPi = 3.1415926535897932384626433832795;
@@ -819,4 +819,4 @@ void DspProcessor::Crossfeed::configure(
     clear();
 }
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

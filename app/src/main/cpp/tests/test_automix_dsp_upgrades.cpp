@@ -9,7 +9,7 @@
 #endif
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     std::cout << "Testing Automix 5 Mandatory DSP Upgrades...\n";
 
     AutoMixEngine engine;

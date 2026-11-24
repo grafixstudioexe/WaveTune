@@ -26,11 +26,11 @@ import (
 var logoPNG []byte
 
 const (
-	defaultBaseURL = "https://katmusic.onrender.com"
+	defaultBaseURL = "https://wavetune.onrender.com"
 	ogWidth        = 1200
 	ogHeight       = 630
 	maxOGCache     = 128
-	metaMarker     = "<!--KAT_META-->"
+	metaMarker     = "<!--WAVE_META-->"
 )
 
 var (
@@ -73,12 +73,12 @@ func normalizeCode(raw string) string {
 // rendered on the server.
 func renderMeta(code string) string {
 	base := publicBaseURL()
-	title := "KatMusic Jam"
-	desc := "Listen together in real time with KatMusic."
+	title := "WaveTune Jam"
+	desc := "Listen together in real time with WaveTune."
 	pageURL := base + "/"
 	image := base + "/og/default.png"
 	if code != "" {
-		title = "Join room " + code + " on KatMusic Jam"
+		title = "Join room " + code + " on WaveTune Jam"
 		desc = "Tap to join room " + code + " and listen together in real time."
 		pageURL = base + "/?code=" + code
 		image = base + "/og/" + code + ".png"
@@ -88,7 +88,7 @@ func renderMeta(code string) string {
 	b.WriteString(`<meta name="description" content="` + e(desc) + `">` + "\n")
 	b.WriteString(`<meta name="theme-color" content="#000000">` + "\n")
 	b.WriteString(`<meta property="og:type" content="website">` + "\n")
-	b.WriteString(`<meta property="og:site_name" content="KatMusic Jam">` + "\n")
+	b.WriteString(`<meta property="og:site_name" content="WaveTune Jam">` + "\n")
 	b.WriteString(`<meta property="og:title" content="` + e(title) + `">` + "\n")
 	b.WriteString(`<meta property="og:description" content="` + e(desc) + `">` + "\n")
 	b.WriteString(`<meta property="og:url" content="` + e(pageURL) + `">` + "\n")
@@ -192,7 +192,7 @@ func drawText(dst draw.Image, face font.Face, s string, x, baseline, spacing int
 	}
 }
 
-// renderBanner draws the 1200x630 preview: black background, KatMusic
+// renderBanner draws the 1200x630 preview: black background, WaveTune
 // signature, and the room code in large lime type.
 func renderBanner(code string) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, ogWidth, ogHeight))
@@ -205,15 +205,15 @@ func renderBanner(code string) []byte {
 		xdraw.CatmullRom.Scale(img, dstRect, logoImg, logoImg.Bounds(), xdraw.Over, nil)
 	}
 	if f := newFace(boldFont, 52); f != nil {
-		drawText(img, f, "KatMusic", 196, 130, 0, colWhite)
-		w := textWidth(f, "KatMusic", 0)
+		drawText(img, f, "WaveTune", 196, 130, 0, colWhite)
+		w := textWidth(f, "WaveTune", 0)
 		if f2 := newFace(regularFont, 52); f2 != nil {
 			drawText(img, f2, "Jam", 196+w+16, 130, 0, colLime)
 		}
 	}
 
 	label := "JOIN MY SESSION"
-	sub := "Open KatMusic and enter the code"
+	sub := "Open WaveTune and enter the code"
 	big := code
 	if code == "" {
 		label = "LISTEN TOGETHER"

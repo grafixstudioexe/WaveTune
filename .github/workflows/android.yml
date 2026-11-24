@@ -48,7 +48,7 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: katmusic-debug-apk
+          name: wavetune-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
@@ -69,13 +69,13 @@ jobs:
             exit 1
           fi
           mkdir -p dist
-          cp "$APK" dist/KatMusic-arm64-v8a-debug.apk
-          sha256sum dist/KatMusic-arm64-v8a-debug.apk > dist/SHA256SUMS.txt
+          cp "$APK" dist/WaveTune-arm64-v8a-debug.apk
+          sha256sum dist/WaveTune-arm64-v8a-debug.apk > dist/SHA256SUMS.txt
 
       - name: Upload ARM64 debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: katmusic-arm64-v8a-debug-apk
+          name: wavetune-arm64-v8a-debug-apk
           path: dist/*
           if-no-files-found: error
 
@@ -103,7 +103,7 @@ jobs:
       # workflow. The Gradle release-config reads SIGNING_KEY and the three
       # password/alias environment variables directly; it refuses to fall back
       # to a debug key, so a missing secret is a clear failure instead of an
-      # APK that cannot install over an existing KatMusic build.
+      # APK that cannot install over an existing WaveTune build.
       - name: Build release APK
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
@@ -116,20 +116,20 @@ jobs:
         run: |
           mkdir -p dist
           cp app/build/outputs/apk/release/app-release.apk \
-             "dist/katmusic-${GITHUB_REF_NAME}.apk"
+             "dist/wavetune-${GITHUB_REF_NAME}.apk"
 
       - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: katmusic-release-apk
-          path: dist/katmusic-*.apk
+          name: wavetune-release-apk
+          path: dist/wavetune-*.apk
           if-no-files-found: error
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/katmusic-*.apk \
-            --title "KatMusic ${GITHUB_REF_NAME}" \
+          gh release create "${GITHUB_REF_NAME}" dist/wavetune-*.apk \
+            --title "WaveTune ${GITHUB_REF_NAME}" \
             --generate-notes \
-            || gh release upload "${GITHUB_REF_NAME}" dist/katmusic-*.apk --clobber
+            || gh release upload "${GITHUB_REF_NAME}" dist/wavetune-*.apk --clobber

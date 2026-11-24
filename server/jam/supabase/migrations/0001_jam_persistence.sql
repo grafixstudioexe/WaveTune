@@ -1,4 +1,4 @@
--- KatMusic Jam: isolated Supabase project schema.
+-- WaveTune Jam: isolated Supabase project schema.
 -- Run this only in the dedicated Jam project.
 -- The Go server talks to this table with the service-role key; the Android app
 -- never receives that key and does not query this table directly.

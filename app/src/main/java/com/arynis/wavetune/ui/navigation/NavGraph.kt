@@ -1,0 +1,962 @@
+package com.arynis.wavetune.ui.navigation
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.remember
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.arynis.wavetune.data.model.AuthState
+import com.arynis.wavetune.ui.screens.auth.AuthViewModel
+import com.arynis.wavetune.ui.screens.auth.LoginScreen
+import com.arynis.wavetune.ui.screens.home.HomeScreen
+import com.arynis.wavetune.ui.screens.settings.SettingsScreen
+import com.arynis.wavetune.ui.screens.jam.ListenTogetherScreen
+import com.arynis.wavetune.ui.screens.search.SearchScreen
+import com.arynis.wavetune.ui.screens.discover.DiscoverScreen
+import com.arynis.wavetune.ui.screens.genres.GenresScreen
+import com.arynis.wavetune.ui.screens.shell.MainShell
+import com.arynis.wavetune.ui.components.BackAwareScreen
+import com.arynis.wavetune.ui.components.LoadingPulse
+import com.arynis.wavetune.ui.components.MotionSpec
+import com.arynis.wavetune.ui.screens.genres.GenreExplorer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.flow.stateIn
+
+/** Thin bridge so WaveTuneNavHost (a plain composable, no direct Hilt
+ *  singleton access) can observe GenreExplorer's pending genre and
+ *  navigate — same reasoning as MainShellViewModel's bridge to
+ *  MixLauncher. */
+@HiltViewModel
+class GenreExplorerNavBridge @Inject constructor(genreExplorer: GenreExplorer) : ViewModel() {
+    val pendingGenre = genreExplorer.pendingGenre
+}
+
+@HiltViewModel
+class MixLauncherNavBridge @Inject constructor(val mixLauncher: com.arynis.wavetune.ui.screens.generate.MixLauncher) : ViewModel()
+
+
+@HiltViewModel
+class AppUpdateNavBridge @Inject constructor(
+    private val appUpdateManager: com.arynis.wavetune.data.update.AppUpdateManager,
+) : ViewModel() {
+    val updateInfo = appUpdateManager.updateInfo
+    fun dismiss(version: String) = appUpdateManager.dismissUpdate(version)
+    fun open(context: android.content.Context) = appUpdateManager.openUpdate(context)
+}
+
+@HiltViewModel
+class ArtistAlbumNavBridge @Inject constructor(val navigator: ArtistAlbumNavigator) : ViewModel()
+
+@HiltViewModel
+class AppRouteNavBridge @Inject constructor(val routeNavigator: AppRouteNavigator) : ViewModel()
+
+/**
+ * Splash / onboarding gate for the YouTube Music-first flow.
+ *
+ * Routes to MainShell when ANY onboarding signal is present:
+ *  - a Last.fm session (legacy [AuthState.SignedIn]), OR
+ *  - a YouTube Music connection (cookies captured via YtMusicAuthManager), OR
+ *  - a previously-selected guest mode (account-free).
+ * Otherwise routes to Login, which now shows only "Login with YouTube Music"
+ * and "Continue as Guest".
+ */
+@HiltViewModel
+class LaunchGateViewModel @Inject constructor(
+    authRepository: com.arynis.wavetune.data.repository.AuthRepository,
+    sessionPreferences: com.arynis.wavetune.data.local.SessionPreferences,
+    ytAuthManager: com.arynis.wavetune.data.ytmusic.YtMusicAuthManager,
+) : ViewModel() {
+    sealed interface GateTarget {
+        data object Loading : GateTarget
+        data object Login : GateTarget
+        data object MainShell : GateTarget
+    }
+
+    val gateTarget: kotlinx.coroutines.flow.StateFlow<GateTarget> =
+        kotlinx.coroutines.flow.combine(
+            authRepository.authState,
+            sessionPreferences.session,
+            sessionPreferences.guestMode,
+            ytAuthManager.connection,
+        ) { authState, session, guestMode, ytConnection ->
+            // Wait for DataStore to load before deciding; otherwise every
+            // cold start would flash Login.
+            if (!session.isLoaded) {
+                GateTarget.Loading
+            } else if (authState is AuthState.Unknown) {
+                GateTarget.Loading
+            } else if (authState is AuthState.SignedIn) {
+                GateTarget.MainShell
+            } else if (guestMode) {
+                GateTarget.MainShell
+            } else if (ytConnection.isConnected) {
+                GateTarget.MainShell
+            } else {
+                GateTarget.Login
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000),
+            initialValue = GateTarget.Loading,
+        )
+}
+
+@Composable
+fun WaveTuneNavHost(
+    navController: NavHostController = rememberNavController(),
+    forceStartupAnimation: Boolean = false,
+) {
+    val appRouteBridge: AppRouteNavBridge = hiltViewModel()
+    val pendingAppRoute by appRouteBridge.routeNavigator.pendingRoute.collectAsStateWithLifecycle()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val updateBridge: AppUpdateNavBridge = hiltViewModel()
+    val updateInfo by updateBridge.updateInfo.collectAsStateWithLifecycle()
+    val updateContext = androidx.compose.ui.platform.LocalContext.current
+    var startupResetHandled by remember { mutableStateOf(false) }
+    LaunchedEffect(forceStartupAnimation, currentRoute) {
+        if (forceStartupAnimation && !startupResetHandled && currentRoute != null) {
+            startupResetHandled = true
+            if (currentRoute != Screen.Splash.route) {
+                navController.navigate(Screen.Splash.route) {
+                    popUpTo(navController.graph.id) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+    LaunchedEffect(pendingAppRoute, currentRoute) {
+        val route = pendingAppRoute
+        if (route != null && currentRoute != null &&
+            currentRoute != Screen.Splash.route && currentRoute != Screen.Login.route
+        ) {
+            if (currentRoute != route) {
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
+            }
+            appRouteBridge.routeNavigator.consumeRoute()
+        }
+    }
+    // "Explore this genre" from any track's context menu, anywhere in the
+    // app — Home, Discover, Playlist, Search — routes here since Genres
+    // is a pushed destination on THIS nav controller and none of those
+    // screens hold a reference to it. See GenreExplorer's doc comment.
+    val genreExplorerBridge: GenreExplorerNavBridge = hiltViewModel()
+    val pendingGenre by genreExplorerBridge.pendingGenre.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingGenre) {
+        if (pendingGenre != null) {
+            navController.navigate(Screen.Genres.route) {
+                launchSingleTop = true
+            }
+        }
+    }
+
+    val navBridge: ArtistAlbumNavBridge = hiltViewModel()
+    LaunchedEffect(Unit) {
+        navBridge.navigator.events.collect { target ->
+            // Drill-down destinations MUST push a fresh back-stack entry every
+            // time: launchSingleTop would collapse Artist A -> Artist B (or
+            // Album X -> Album Y) into the top entry since they share one
+            // destination node, leaving taps on similar artists / more-by
+            // albums visibly dead and the detail ViewModel showing stale data.
+            // Rapid double-tap dedup already lives in ArtistAlbumNavigator.
+            when (target) {
+                is ArtistAlbumNavTarget.Artist -> {
+                    navController.navigate(Screen.ArtistDetail.createRoute(target.name, target.browseId))
+                }
+                is ArtistAlbumNavTarget.Album -> {
+                    navController.navigate(Screen.AlbumDetail.createRoute(target.title, target.artist, target.browseId))
+                }
+            }
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Splash.route,
+        enterTransition = { MotionSpec.forwardEnter() },
+        exitTransition = { MotionSpec.forwardExit() },
+        popEnterTransition = { MotionSpec.backEnter() },
+        popExitTransition = { MotionSpec.backExit() },
+    ) {
+
+        // Resolves the persisted session BEFORE showing any interactive UI.
+        // YouTube Music-first gate: MainShell when Last.fm signed in OR
+        // YouTube Music connected OR guest mode was previously selected.
+        // This keeps login persistent without flashing Login on cold start.
+        composable(Screen.Splash.route) {
+            val gateViewModel: LaunchGateViewModel = hiltViewModel()
+            val gateTarget by gateViewModel.gateTarget.collectAsStateWithLifecycle()
+
+            var openingAnimationFinished by remember { mutableStateOf(false) }
+            LaunchedEffect(gateTarget, openingAnimationFinished) {
+                if (openingAnimationFinished) {
+                    when (gateTarget) {
+                        LaunchGateViewModel.GateTarget.MainShell -> navController.navigate(Screen.MainShell.route) {
+                            popUpTo(Screen.Splash.route) { inclusive = true }
+                        }
+                        LaunchGateViewModel.GateTarget.Login -> navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Splash.route) { inclusive = true }
+                        }
+                        LaunchGateViewModel.GateTarget.Loading -> Unit
+                    }
+                }
+            }
+            LaunchGate { openingAnimationFinished = true }
+        }
+
+        composable(Screen.Login.route) {
+            val authViewModel: AuthViewModel = hiltViewModel()
+            val themeViewModel: com.arynis.wavetune.ui.theme.ThemeViewModel = hiltViewModel()
+            val appearanceState by themeViewModel.uiState.collectAsStateWithLifecycle()
+            val gateViewModel: LaunchGateViewModel = hiltViewModel()
+            val gateTarget by gateViewModel.gateTarget.collectAsStateWithLifecycle()
+            val webAuthState by authViewModel.webAuthState.collectAsStateWithLifecycle()
+
+            // YouTube Music-first onboarding: any onboarded signal (Last.fm
+            // session, YT connection, or guest flag) skips straight to
+            // MainShell. YT login returns here via YouTubeLogin's onConnected
+            // pop, then this effect immediately forwards to MainShell.
+            LaunchedEffect(gateTarget, webAuthState) {
+                if (gateTarget == LaunchGateViewModel.GateTarget.MainShell &&
+                    webAuthState == com.arynis.wavetune.ui.screens.auth.WebAuthState.Idle
+                ) {
+                    navController.navigate(Screen.MainShell.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            }
+
+            val restoreError = (webAuthState as? com.arynis.wavetune.ui.screens.auth.WebAuthState.Error)?.message
+            val restoring = webAuthState == com.arynis.wavetune.ui.screens.auth.WebAuthState.RestoringBackup
+            LoginScreen(
+                onLoginWithYouTube = {
+                    navController.navigate(Screen.YouTubeLogin.route)
+                },
+                onContinueAsGuest = {
+                    authViewModel.continueAsGuest()
+                },
+                onRestoreBackupAndSignIn = authViewModel::restoreBackupOnly,
+                onDismissError = authViewModel::dismissError,
+                errorMessage = restoreError,
+                isBusy = restoring,
+                onLegacyFriendlyModeChange = themeViewModel::setLegacyFriendlyMode,
+                isLegacyFriendlyMode = !appearanceState.liquidGlass && appearanceState.md3NavBar,
+                onOpenDownloads = {
+                    navController.navigate(Screen.Downloads.route)
+                },
+            )
+        }
+
+        // Post-login container: Material3 bottom nav with Home/Generate/
+        // Playlists as swipeable tabs. Settings, Search, and Discover are
+        // NOT tabs — they're pushed screens reached from Home's top app bar
+        // (profile icon / search icon / discover icon), on this same root
+        // nav controller, so they can pop back cleanly and (on log out /
+        // clear session) return all the way to Login.
+        composable(Screen.MainShell.route) {
+            MainShell(
+                onOpenSettings = {
+                    navController.navigate(Screen.Settings.route) { launchSingleTop = true }
+                },
+                onOpenSearch = { /* Search is part of the main navigation dock. */ },
+                onOpenDiscover = { navController.navigate(Screen.Discover.route) },
+                onOpenGenres = { navController.navigate(Screen.Genres.route) },
+                onOpenFriends = { navController.navigate(Screen.Friends.route) },
+                onOpenFriendProfile = { username, displayName, avatarUrl ->
+                    navController.navigate(Screen.FriendProfile.createRoute(username, displayName, avatarUrl))
+                },
+                onOpenPlaylist = { playlistId ->
+                    navController.navigate(Screen.PlaylistDetail.createRoute(playlistId))
+                },
+                onOpenFeedPlaylist = { playlistId ->
+                    navController.navigate(Screen.FeedPlaylistDetail.createRoute(playlistId))
+                },
+                onOpenGenerator = {
+                    navController.navigate(Screen.Create.route) { launchSingleTop = true }
+                },
+                onOpenNewReleases = {
+                    navController.navigate(Screen.NewReleases.route)
+                },
+                onOpenDownloads = {
+                    navController.navigate(Screen.Downloads.route)
+                },
+                onOpenListenTogether = {
+                    navController.navigate(Screen.ListenTogether.route)
+                },
+                onOpenSearchResultArtist = { name, browseId ->
+                    navController.navigate(Screen.ArtistDetail.createRoute(name, browseId))
+                },
+                onOpenSearchResultAlbum = { title, artist, browseId ->
+                    navController.navigate(Screen.AlbumDetail.createRoute(title, artist, browseId))
+                },
+                onOpenSearchResultPlaylist = { playlistId ->
+                    navController.navigate(Screen.FeedPlaylistDetail.createRoute(playlistId))
+                },
+                onOpenPodcasts = {
+                    navController.navigate(Screen.Podcasts.route)
+                },
+                onOpenPodcastShow = { showId ->
+                    navController.navigate(Screen.PodcastShow.createRoute(showId))
+                },
+                onOpenYouTubeLogin = {
+                    navController.navigate(Screen.YouTubeLogin.route)
+                },
+                onReturnToHome = {
+                    if (navController.currentDestination?.route != Screen.MainShell.route) {
+                        navController.popBackStack(Screen.MainShell.route, inclusive = false)
+                    } else {
+                        false
+                    }
+                },
+            )
+        }
+
+        composable(Screen.Stats.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                HomeScreen(
+                    onOpenSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
+                    onOpenSearch = { navController.navigate(Screen.Search.route) },
+                    onOpenDiscover = { navController.navigate(Screen.Discover.route) },
+                    onOpenGenres = { navController.navigate(Screen.Genres.route) },
+                    onOpenFriends = { navController.navigate(Screen.Friends.route) },
+                    onOpenDownloads = { navController.navigate(Screen.Downloads.route) },
+                )
+            }
+        }
+
+        // Settings is a pushed destination on the root NavController.
+        // It must be registered here before MainShell's Settings action can navigate to it.
+        composable(Screen.Settings.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                SettingsScreen(
+                    onBack = { navController.popBackStack() },
+                    onLoggedOut = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.MainShell.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onOpenDownloads = { navController.navigate(Screen.Downloads.route) },
+                    onOpenListenTogether = { navController.navigate(Screen.ListenTogether.route) },
+                    onOpenHomeSections = { navController.navigate(Screen.HomeSections.route) },
+                    onOpenExcludedSongs = { navController.navigate(Screen.ExcludedSongs.route) },
+                    onOpenYouTubeImport = { navController.navigate(Screen.YouTubeImport.route) },
+                    onOpenYouTubeLogin = { navController.navigate(Screen.YouTubeLogin.route) },
+                    onOpenExternalImport = { navController.navigate(Screen.ExternalPlaylistImport.route) },
+                    onOpenSpotifyLogin = { navController.navigate(Screen.SpotifyLogin.route) },
+                    onOpenSpotifyTokenImport = { navController.navigate(Screen.SpotifyTokenImport.route) },
+                )
+            }
+        }
+
+        composable(Screen.ListenTogether.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                ListenTogetherScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+
+        composable(Screen.Create.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.generate.GenerateScreen(
+                    onNavigateToPlaylist = { playlistId ->
+                        navController.popBackStack()
+                        if (playlistId != null) {
+                            navController.navigate(Screen.PlaylistDetail.createRoute(playlistId))
+                        }
+                    },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        // Friends is a real pushed screen (not a Dialog/ModalBottomSheet) —
+        // both of those were tried first and both had the same underlying
+        // problem: getting a Compose overlay to genuinely claim the full
+        // real window (not just "as tall as its own content measured
+        // itself to be", which is all either API reliably guarantees
+        // without extra low-level workarounds) turned out to be fragile
+        // enough, even after direct fixes, that it kept regressing. A
+        // normal NavHost destination gets full-screen sizing for free —
+        // every other pushed screen here (Settings, Search, Discover,
+        // Genres) already renders correctly edge-to-edge —
+        // so Friends now works exactly like those instead of being a
+        // special case. It shares Home's own HomeViewModel (scoped to
+        // MainShell's back stack entry) rather than getting a fresh one,
+        // since the friends list / switch-profile state already lives
+        // there and switching profile needs to affect the Home tab
+        // underneath once you pop back.
+        composable(Screen.Friends.route) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Screen.MainShell.route)
+            }
+            val homeViewModel: com.arynis.wavetune.ui.screens.home.HomeViewModel = hiltViewModel(parentEntry)
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.home.FriendsScreen(
+                    viewModel = homeViewModel,
+                    onBack = { navController.popBackStack() },
+                    onOpenFriendProfile = { username, displayName, avatarUrl ->
+                        navController.navigate(Screen.FriendProfile.createRoute(username, displayName, avatarUrl))
+                    },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.FriendProfile.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("username") { type = androidx.navigation.NavType.StringType },
+                androidx.navigation.navArgument("displayName") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+                androidx.navigation.navArgument("avatarUrl") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username").orEmpty()
+            val displayName = backStackEntry.arguments?.getString("displayName")?.takeIf(String::isNotBlank)
+            val avatarUrl = backStackEntry.arguments?.getString("avatarUrl")?.takeIf(String::isNotBlank)
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.home.FriendProfileScreen(
+                    username = username,
+                    initialDisplayName = displayName,
+                    initialAvatarUrl = avatarUrl,
+                    onBack = { navController.popBackStack() },
+                    onOpenArtist = { artistName ->
+                        navController.navigate(Screen.ArtistDetail.createRoute(artistName))
+                    },
+                    onOpenAlbum = { albumTitle, artistName ->
+                        navController.navigate(Screen.AlbumDetail.createRoute(albumTitle, artistName))
+                    },
+                )
+            }
+        }
+
+        // Every pushed-on-top destination below is wrapped in
+        // BackAwareScreen so Android's predictive back gesture (drag
+        // in from the edge) scales/rounds/dims the screen in real time
+        // instead of using a canned pop transition — see its doc comment
+        // for exactly what it does and does not animate. The screen's own
+        // onBack (its toolbar back button) still pops directly; the wrap
+        // only adds the gesture-driven path, it doesn't replace the
+        // button's.
+        composable(Screen.Genres.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                GenresScreen(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToPlaylist = {
+                        navController.popBackStack()
+                        // Playlist tab already re-reads on resume (PlaylistViewModel's
+                        // LifecycleResumeEffect), so popping back to MainShell is
+                        // sufficient — no separate "switch tab" signal is needed here
+                        // since MainShell always shows Playlists as one of its tabs
+                        // and the user lands back wherever they left MainShell.
+                    },
+                )
+            }
+        }
+
+
+      composable(Screen.SpotifyLogin.route) {
+      BackAwareScreen(onBack = { navController.popBackStack() }) {
+      com.arynis.wavetune.ui.screens.settings.SpotifyLoginScreen(
+      onBack = { navController.popBackStack() },
+      onConnected = { navController.popBackStack() },
+      )
+      }
+      }
+
+      composable(Screen.SpotifyTokenImport.route) {
+      BackAwareScreen(onBack = { navController.popBackStack() }) {
+      com.arynis.wavetune.ui.screens.settings.SpotifyLoginScreen(
+      onBack = { navController.popBackStack() },
+      onConnected = { navController.popBackStack() },
+      openManualEntryInitially = true,
+      )
+      }
+      }
+
+
+        composable(Screen.YouTubeImport.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.YouTubePlaylistImportScreen(
+                    onBack = { navController.popBackStack() },
+                    onImportSuccess = {
+                        navController.popBackStack()
+                    },
+                )
+            }
+        }
+
+        composable(Screen.YouTubeLogin.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.YouTubeLoginScreen(
+                    onBack = { navController.popBackStack() },
+                    onConnected = { navController.popBackStack() },
+                    onOpenDesktopPairing = {
+                        navController.navigate(Screen.YouTubeDesktopPairing.route)
+                    },
+                )
+            }
+        }
+
+        composable(Screen.YouTubeDesktopPairing.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.YouTubeDesktopPairingScreen(
+                    onBack = { navController.popBackStack() },
+                    onFinished = { navController.popBackStack() },
+                )
+            }
+        }
+
+        composable(Screen.ExternalPlaylistImport.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.ExternalPlaylistImportScreen(
+                    onBack = { navController.popBackStack() },
+                    onImportSuccess = {
+                        navController.popBackStack()
+                    },
+                    onOpenSpotifyLogin = {
+                        navController.navigate(Screen.SpotifyLogin.route)
+                    },
+                )
+            }
+        }
+
+        composable(Screen.Downloads.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.DownloadsScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+
+        composable(Screen.HomeSections.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.HomeSectionsScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+        composable(Screen.ExcludedSongs.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.settings.ExcludedSongsScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+
+        composable(Screen.Search.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                SearchScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenArtist = { name, browseId ->
+                        navController.navigate(Screen.ArtistDetail.createRoute(name, browseId))
+                    },
+                    onOpenAlbum = { title, artist, browseId ->
+                        navController.navigate(Screen.AlbumDetail.createRoute(title, artist, browseId))
+                    },
+                    onOpenPlaylist = { playlistId ->
+                        navController.navigate(Screen.FeedPlaylistDetail.createRoute(playlistId))
+                    },
+                )
+            }
+        }
+
+        composable(Screen.Discover.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                DiscoverScreen(onBack = { navController.popBackStack() })
+            }
+        }
+
+        composable(Screen.NewReleases.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.newreleases.NewReleasesScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        composable(Screen.Podcasts.route) {
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.podcast.PodcastsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenShow = { showId ->
+                        navController.navigate(Screen.PodcastShow.createRoute(showId))
+                    },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.PodcastShow.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("showId") {
+                    type = androidx.navigation.NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            val showId = backStackEntry.arguments?.getString("showId").orEmpty()
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.podcast.PodcastShowScreen(
+                    showId = showId,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.FeedPlaylistDetail.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("playlistId") {
+                    type = androidx.navigation.NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getString("playlistId").orEmpty()
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.feed.FeedPlaylistDetailScreen(
+                    playlistId = playlistId,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.PlaylistDetail.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("playlistId") {
+                    type = androidx.navigation.NavType.LongType
+                },
+            ),
+        ) { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getLong("playlistId") ?: return@composable
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.playlist.PlaylistDetailScreen(
+                    playlistId = playlistId,
+                    onBack = { navController.popBackStack() },
+                    onOpenPlaylist = { newId ->
+                        navController.navigate(Screen.PlaylistDetail.createRoute(newId))
+                    },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.ArtistDetail.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("artistName") { type = androidx.navigation.NavType.StringType },
+                androidx.navigation.navArgument("browseId") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val artistName = backStackEntry.arguments?.getString("artistName").orEmpty()
+            val browseId = backStackEntry.arguments?.getString("browseId")?.takeIf(String::isNotBlank)
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.artist.ArtistDetailScreen(
+                    artistName = artistName,
+                    browseId = browseId,
+                    onBack = { navController.popBackStack() },
+                    onOpenAlbum = { title, artist, id ->
+                        navController.navigate(Screen.AlbumDetail.createRoute(title, artist, id))
+                    },
+                    onOpenArtist = { name, id ->
+                        navController.navigate(Screen.ArtistDetail.createRoute(name, id))
+                    },
+                )
+            }
+        }
+
+        composable(
+            route = Screen.AlbumDetail.route,
+            arguments = listOf(
+                androidx.navigation.navArgument("albumTitle") { type = androidx.navigation.NavType.StringType },
+                androidx.navigation.navArgument("artistName") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+                androidx.navigation.navArgument("browseId") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val albumTitle = backStackEntry.arguments?.getString("albumTitle").orEmpty()
+            val artistName = backStackEntry.arguments?.getString("artistName").orEmpty()
+            val browseId = backStackEntry.arguments?.getString("browseId")?.takeIf(String::isNotBlank)
+            BackAwareScreen(onBack = { navController.popBackStack() }) {
+                com.arynis.wavetune.ui.screens.album.AlbumDetailScreen(
+                    albumTitle = albumTitle,
+                    artistName = artistName,
+                    browseId = browseId,
+                    onBack = { navController.popBackStack() },
+                    onOpenArtist = { name, id ->
+                        navController.navigate(Screen.ArtistDetail.createRoute(name, id))
+                    },
+                    onOpenAlbum = { title, artist, id ->
+                        navController.navigate(Screen.AlbumDetail.createRoute(title, artist, id))
+                    },
+                )
+            }
+        }
+    }
+    // Check for releases in the app-wide manager and show the same prompt
+    // after the black startup animation, regardless of login or guest state.
+    if (
+        currentRoute != null &&
+        currentRoute != Screen.Splash.route &&
+        updateInfo.isUpdateAvailable &&
+        !updateInfo.isDismissed
+    ) {
+        AlertDialog(
+            onDismissRequest = { updateBridge.dismiss(updateInfo.latestVersion) },
+            shape = RoundedCornerShape(14.dp),
+            title = { Text("WaveTune update available", style = MaterialTheme.typography.titleLarge) },
+            text = {
+                Column {
+                    Text("Version ${updateInfo.latestVersion} is ready.")
+                    if (updateInfo.releaseNotes.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            updateInfo.releaseNotes.take(420).let {
+                                if (updateInfo.releaseNotes.length > 420) "${it}…" else it
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { updateBridge.open(updateContext) }) {
+                    Text("View update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { updateBridge.dismiss(updateInfo.latestVersion) }) {
+                    Text("Later")
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun LaunchGate(onAnimationFinished: () -> Unit) {
+    var videoFinished by remember { mutableStateOf(false) }
+    var lockupStarted by remember { mutableStateOf(false) }
+
+    // The video's last frame is the centred emblem. Keep the static mark there
+    // for a beat, then resolve it into the wordmark lockup instead of fading
+    // the logo up from black.
+    val haloAlpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (videoFinished) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 850,
+            delayMillis = 40,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+        label = "startupHaloFade",
+    )
+    val underlineProgress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (lockupStarted) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 420,
+            delayMillis = 220,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+        label = "startupUnderline",
+    )
+    val logoOffset by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (lockupStarted) 0.dp else 86.dp,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 620,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+        label = "startupLogoSlide",
+    )
+    val wordmarkAlpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (lockupStarted) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 480,
+            delayMillis = 90,
+        ),
+        label = "startupWordmarkFade",
+    )
+    val wordmarkOffset by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (lockupStarted) 0.dp else 22.dp,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 520,
+            delayMillis = 70,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+        label = "startupWordmarkSlide",
+    )
+
+    // The clip is ~1.37 seconds. This is only a broken-decoder fallback;
+    // normal completion is driven by VideoView's completion callback.
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(4_000L)
+        if (!videoFinished) {
+            android.util.Log.w("WaveTuneSplash", "Logo animation timed out; showing static brand mark")
+            videoFinished = true
+        }
+    }
+    LaunchedEffect(videoFinished) {
+        if (videoFinished) {
+            // Hold the held emblem long enough to read, then resolve the lockup
+            // before navigation starts.
+            kotlinx.coroutines.delay(180L)
+            lockupStarted = true
+            kotlinx.coroutines.delay(640L)
+            onAnimationFinished()
+        }
+    }
+
+    Box(
+        Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (!videoFinished) {
+            androidx.compose.ui.viewinterop.AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { context ->
+                    android.widget.VideoView(context).apply {
+                        setBackgroundColor(android.graphics.Color.BLACK)
+                        setVideoURI(
+                            android.net.Uri.parse(
+                                "android.resource://${context.packageName}/${com.arynis.wavetune.R.raw.startup_logo}",
+                            ),
+                        )
+                        setOnPreparedListener { mediaPlayer ->
+                            mediaPlayer.isLooping = false
+                            // The clip is a brand sting, not a soundtrack.
+                            mediaPlayer.setVolume(0f, 0f)
+                            start()
+                        }
+                        setOnCompletionListener {
+                            // The final frame of the clip is the WaveTune emblem.
+                            // Swap to the matching static mark without any second
+                            // entrance animation, then animate that mark left.
+                            videoFinished = true
+                        }
+                        setOnErrorListener { _, what, extra ->
+                            android.util.Log.w(
+                                "WaveTuneSplash",
+                                "Logo animation playback failed (what=$what, extra=$extra)",
+                            )
+                            videoFinished = true
+                            true
+                        }
+                    }
+                },
+            )
+        }
+
+        // A quiet blue bloom bridges the held frame and the static lockup.
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .graphicsLayer {
+                    alpha = haloAlpha
+                    val scale = 0.84f + haloAlpha * 0.16f
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .background(
+                    brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                        colors = listOf(
+                            androidx.compose.ui.graphics.Color(0x4019C2A6L),
+                            androidx.compose.ui.graphics.Color(0x0019C2A6L),
+                        ),
+                    ),
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                ),
+        )
+
+        // Fixed-width composition is essential here: the row does not grow
+        // when the app name appears, so the logo has one clean, predictable
+        // centre-to-left motion rather than jumping as the layout recentres.
+        Column(
+            modifier = Modifier.alpha(if (videoFinished) 1f else 0f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            androidx.compose.foundation.layout.Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(14.dp),
+            ) {
+                androidx.compose.foundation.Image(
+                    painter = painterResource(com.arynis.wavetune.R.drawable.ic_launcher_logo),
+                    contentDescription = "WaveTune logo",
+                    modifier = Modifier
+                        .size(88.dp)
+                        .offset(x = logoOffset),
+                )
+                Column(
+                    modifier = Modifier
+                        .offset(x = wordmarkOffset)
+                        .alpha(wordmarkAlpha),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text = "WaveTune",
+                        color = androidx.compose.ui.graphics.Color.White,
+                        style = MaterialTheme.typography.headlineLarge,
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(width = 48.dp * underlineProgress, height = 2.dp)
+                            .background(
+                                brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                    colors = listOf(
+                                        androidx.compose.ui.graphics.Color.Transparent,
+                                        androidx.compose.ui.graphics.Color(0xFF19C2A6),
+                                        androidx.compose.ui.graphics.Color.Transparent,
+                                    ),
+                                ),
+                                shape = RoundedCornerShape(1.dp),
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}

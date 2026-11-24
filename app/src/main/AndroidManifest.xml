@@ -50,7 +50,7 @@
     <!-- The QR pairing endpoint is an ephemeral private-LAN server. Its
          payload is still AES-GCM encrypted with the one-use QR secret. -->
     <application
-        android:name=".KatMusicApplication"
+        android:name=".WaveTuneApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -59,7 +59,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KatMusic.Splash"
+        android:theme="@style/Theme.WaveTune.Splash"
         android:usesCleartextTraffic="true"
         android:localeConfig="@xml/locales_config"
         android:hardwareAccelerated="true"
@@ -68,7 +68,7 @@
 
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.itzfallenme.katmusic.playback.cast.KatMusicCastOptionsProvider" />
+            android:value="com.arynis.wavetune.playback.cast.WaveTuneCastOptionsProvider" />
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -80,7 +80,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.KatMusic.Splash"
+            android:theme="@style/Theme.WaveTune.Splash"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
             android:windowSoftInputMode="adjustResize">
 
@@ -108,31 +108,37 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="katmusic" android:host="auth-callback" />
+                <data android:scheme="wavetune" android:host="auth-callback" />
             </intent-filter>
 
-            <!-- KatMusic deep links (rooms and shared tracks). -->
+            <!-- WaveTune deep links (rooms and shared tracks). `wavetune` is
+                 kept so links from the upstream app still open. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="katmusic" android:host="jam" />
-                <data android:scheme="katmusic" android:host="sync" />
-                <data android:scheme="katmusic" android:host="track" />
-                <data android:scheme="katmusic" android:host="song" />
-                <data android:scheme="katmusic" android:host="play" />
+                <data android:scheme="wavetune" android:host="jam" />
+                <data android:scheme="wavetune" android:host="sync" />
+                <data android:scheme="wavetune" android:host="track" />
+                <data android:scheme="wavetune" android:host="song" />
+                <data android:scheme="wavetune" android:host="play" />
+                <data android:scheme="wavetune" android:host="jam" />
+                <data android:scheme="wavetune" android:host="sync" />
+                <data android:scheme="wavetune" android:host="track" />
+                <data android:scheme="wavetune" android:host="song" />
+                <data android:scheme="wavetune" android:host="play" />
             </intent-filter>
 
             <!-- The canonical share page can also be selected directly from
                  Android's link resolver. The page remains the browser
-                 fallback when KatMusic is not installed. -->
+                 fallback when WaveTune is not installed. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="katmusic.pages.dev"
+                    android:host="wavetune.pages.dev"
                     android:pathPrefix="/share.html" />
             </intent-filter>
 
@@ -173,7 +179,7 @@
         <!--
             The shared Compose Multiplatform UI — the same screens the desktop
             build runs — hosted on Android. The main Android UI is unchanged;
-            this shell is reached through katmusic://shared.
+            this shell is reached through wavetune://shared.
         -->
         <activity
             android:name=".ui.shared.SharedShellActivity"
@@ -183,7 +189,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="katmusic" android:host="shared" />
+                <data android:scheme="wavetune" android:host="shared" />
+                <data android:scheme="wavetune" android:host="shared" />
             </intent-filter>
         </activity>
 
@@ -258,8 +265,8 @@
             android:name=".data.download.DownloadCancelReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.itzfallenme.katmusic.ACTION_CANCEL_DOWNLOAD" />
-                <action android:name="com.itzfallenme.katmusic.ACTION_RECONNECT_DOWNLOAD" />
+                <action android:name="com.arynis.wavetune.ACTION_CANCEL_DOWNLOAD" />
+                <action android:name="com.arynis.wavetune.ACTION_RECONNECT_DOWNLOAD" />
             </intent-filter>
         </receiver>
 

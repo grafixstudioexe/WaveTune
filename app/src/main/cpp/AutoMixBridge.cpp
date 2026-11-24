@@ -8,12 +8,12 @@
 
 namespace {
 
-using katmusic::audio::AutoMixEngine;
-using katmusic::audio::AutoMixState;
-using katmusic::audio::TransitionPlan;
-using katmusic::audio::TransitionPlanner;
-using katmusic::audio::PhraseLengthMode;
-using katmusic::audio::LyricTimeInterval;
+using wavetune::audio::AutoMixEngine;
+using wavetune::audio::AutoMixState;
+using wavetune::audio::TransitionPlan;
+using wavetune::audio::TransitionPlanner;
+using wavetune::audio::PhraseLengthMode;
+using wavetune::audio::LyricTimeInterval;
 
 AutoMixEngine* fromHandle(jlong handle) noexcept {
     return reinterpret_cast<AutoMixEngine*>(static_cast<std::uintptr_t>(handle));
@@ -24,7 +24,7 @@ AutoMixEngine* fromHandle(jlong handle) noexcept {
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeCreate(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeCreate(
     JNIEnv*,
     jclass) {
     const auto ptr = reinterpret_cast<std::uintptr_t>(new (std::nothrow) AutoMixEngine());
@@ -32,7 +32,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeCreate(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeDestroy(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeDestroy(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -40,7 +40,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeDestroy(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeConfigure(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeConfigure(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -52,7 +52,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeConfigure(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetEnabled(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetEnabled(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -64,7 +64,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetEnabled(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetBarMode(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetBarMode(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -76,7 +76,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetBarMode(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetPaused(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetPaused(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -88,7 +88,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetPaused(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetDeckBVocalsActive(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetDeckBVocalsActive(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -100,7 +100,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetDeckBVocalsA
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetDeckAVocalFree(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetDeckAVocalFree(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -112,7 +112,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetDeckAVocalFr
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeTriggerFadeNow(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeTriggerFadeNow(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -123,7 +123,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeTriggerFadeNow(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeStartTransition(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeStartTransition(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -135,7 +135,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeStartTransition
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetTransitionProgress(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeSetTransitionProgress(
     JNIEnv*,
     jclass,
     jlong handle,
@@ -147,7 +147,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeSetTransitionPr
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeReset(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeReset(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -158,7 +158,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeReset(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeWriteDeckBPcm(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeWriteDeckBPcm(
     JNIEnv* env,
     jclass,
     jlong handle,
@@ -180,7 +180,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeWriteDeckBPcm(
 }
 
 JNIEXPORT void JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeProcess(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeProcess(
     JNIEnv* env,
     jclass,
     jlong handle,
@@ -202,7 +202,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeProcess(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetState(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetState(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -211,7 +211,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetState(
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetTransitionProgress(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetTransitionProgress(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -220,7 +220,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetTransitionPr
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBLeadingTrimFrames(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBLeadingTrimFrames(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -229,7 +229,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBLeading
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBAvailableSeconds(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBAvailableSeconds(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -238,7 +238,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBAvailab
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBAvailableFrames(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBAvailableFrames(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -247,7 +247,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBAvailab
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckABpm(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckABpm(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -256,7 +256,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckABpm(
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBBpm(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBBpm(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -265,7 +265,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBBpm(
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBFirstBeatMs(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBFirstBeatMs(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -274,7 +274,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBFirstBe
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBDropBeatMs(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeGetDeckBDropBeatMs(
     JNIEnv*,
     jclass,
     jlong handle) {
@@ -283,7 +283,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeGetDeckBDropBea
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeProcessDeckBuffer(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativeProcessDeckBuffer(
     JNIEnv* env,
     jclass,
     jlong handle,
@@ -323,7 +323,7 @@ Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativeProcessDeckBuff
 }
 
 JNIEXPORT jdoubleArray JNICALL
-Java_com_itzfallenme_katmusic_playback_NativeAutoMixEngine_nativePlanTransition(
+Java_com_arynis_wavetune_playback_NativeAutoMixEngine_nativePlanTransition(
     JNIEnv* env,
     jclass,
     jlong handle,

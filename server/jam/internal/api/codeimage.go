@@ -15,7 +15,7 @@ import (
 
 var songCodeRe = regexp.MustCompile(`^[A-Za-z0-9-]{16,40}$`)
 
-// handleCodeImage serves a shareable KatMusic song-code card:
+// handleCodeImage serves a shareable WaveTune song-code card:
 // /code/KM-XXXXX-XXXXX-XXXXX-XXXXX.png
 func (h *Handler) handleCodeImage(w http.ResponseWriter, r *http.Request) {
 	code := strings.TrimSuffix(r.PathValue("file"), ".png")
@@ -39,8 +39,8 @@ func renderCodeImage(code string) []byte {
 		xdraw.CatmullRom.Scale(img, dst, logoImg, logoImg.Bounds(), xdraw.Over, nil)
 	}
 	if f := newFace(boldFont, 52); f != nil {
-		drawText(img, f, "KatMusic", 196, 130, 0, colWhite)
-		w := textWidth(f, "KatMusic", 0)
+		drawText(img, f, "WaveTune", 196, 130, 0, colWhite)
+		w := textWidth(f, "WaveTune", 0)
 		if f2 := newFace(regularFont, 52); f2 != nil {
 			drawText(img, f2, "Code", 196+w+16, 130, 0, colLime)
 		}
@@ -61,7 +61,7 @@ func renderCodeImage(code string) []byte {
 		drawText(img, codeFace, code, 80, 430, 4, colLime)
 	}
 	if f := newFace(regularFont, 36); f != nil {
-		drawText(img, f, "Open KatMusic and enter this code to play the song", 80, 524, 0, colWhite)
+		drawText(img, f, "Open WaveTune and enter this code to play the song", 80, 524, 0, colWhite)
 	}
 	draw.Draw(img, image.Rect(80, 560, ogWidth-80, 562), image.NewUniform(colLine), image.Point{}, draw.Src)
 	if f := newFace(regularFont, 26); f != nil {

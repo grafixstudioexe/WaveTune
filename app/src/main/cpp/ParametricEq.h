@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 /**
  * Parametric equalizer (AutoEQ / manual PEQ).
@@ -120,4 +120,4 @@ private:
     std::uint32_t ditherState_{0x12345678U};
 };
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

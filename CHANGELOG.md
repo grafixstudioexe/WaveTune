@@ -1,8 +1,21 @@
 # Changelog
 
-All notable changes to KatMusic are documented here. The format follows
+All notable changes to WaveTune are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [semantic versioning](https://semver.org/).
+
+## [1.0.0] - 2026-11-24
+
+### Added
+
+- YouTube Music Liked Songs now import into WaveTune's Liked Songs automatically after sign-in: the complete library on the first connection, then incremental checks for songs liked in YouTube Music's own apps.
+- Likes and unlikes made while offline or signed out are queued and sent to YouTube Music on the next sync pass, instead of being lost.
+- Optional Spotify Liked Songs auto-sync (Settings → Spotify): new Spotify likes are matched and merged into Liked Songs without re-scanning the whole library.
+
+### Changed
+
+- Rebranded the app as **WaveTune** by **ARYNIS Arc**. Application ID and namespace are `com.arynis.wavetune`; the repository is [grafixstudioexe/WaveTune](https://github.com/grafixstudioexe/WaveTune).
+- Release workflow publishes Android APKs and desktop installers from a single selected version.
 
 ## [2.6.5] - 2026-11-17
 
@@ -16,7 +29,7 @@ All notable changes to KatMusic are documented here. The format follows
 - A shared download-size formatter that produces identical output on Android, desktop and Kotlin/Native.
 - Android player styles with genuinely different decks: rotating Vinyl and animated Cassette players, plus rebuilt Poster, Timeline, Lyrics, Artwork and Canvas layouts. Classic remains unchanged.
 - Player-style previews in Settings so each deck can be compared before opening Now Playing.
-- Desktop parity features: Jam room controls, displayable/enterable Code 128 KatMusic Codes, local listening stats, album browsing, streamed M3U playlists, sleep timer and lyrics copy.
+- Desktop parity features: Jam room controls, displayable/enterable Code 128 WaveTune Codes, local listening stats, album browsing, streamed M3U playlists, sleep timer and lyrics copy.
 - Desktop Last.fm support with bring-your-own API credentials, browser authorization, scrobbling, now-playing updates, recent tracks, top artists and public friend profiles.
 - Public playlist import on desktop for YouTube, Spotify and Apple Music, matching external tracks to YouTube Music without account cookies.
 - Desktop regional Discover charts with a persisted country choice, local-history mixes, artist album browsing and provider-recommended artist radio.
@@ -71,7 +84,7 @@ All notable changes to KatMusic are documented here. The format follows
 
 ### Added
 
-- A **Report a bug** action in Android and desktop Settings that opens the KatMusic report form.
+- A **Report a bug** action in Android and desktop Settings that opens the WaveTune report form.
 
 ### Fixed
 
@@ -83,7 +96,7 @@ All notable changes to KatMusic are documented here. The format follows
 
 - **Go-based Jam server** with co-hosts, collaborative rooms, suggestions, chat and permanent radio stations, replacing the Node relay.
 - Optional **Supabase persistence** for Jam rooms and recent chat. Snapshots survive Render restarts; the first listener back becomes host.
-- **KatMusic Cover**, an artwork-first home-screen widget with a 1×1 tile and a 2×1 wide layout, one-tap play/pause and the same live session/artwork pipeline as the existing widgets.
+- **WaveTune Cover**, an artwork-first home-screen widget with a 1×1 tile and a 2×1 wide layout, one-tap play/pause and the same live session/artwork pipeline as the existing widgets.
 - **Android-to-desktop YouTube Music login** using a five-minute, one-use LAN QR code, desktop approval and AES-GCM encrypted session transfer.
 - A more cinematic alternate-player motion system: drifting ambient colour, breathing and rotating cover art, animated glow rings, lyric-line crossfades, a pulsing timeline playhead and an animated play/pause glyph.
 - A polished startup handoff from the final video emblem into the centred logo, wordmark and gradient underline.
@@ -107,17 +120,17 @@ All notable changes to KatMusic are documented here. The format follows
 
 - **Online Listen Together rooms** backed by a deployable WebSocket relay. Create or join rooms with a code, approve incoming members, chat, share queue metadata, hand off host control, and synchronize playback state across devices.
 - Reconnection support using room session tokens, plus bounded room activity events.
-- A production Listen Together server endpoint is prefilled in the app: `wss://katmusic.onrender.com/ws`.
+- A production Listen Together server endpoint is prefilled in the app: `wss://wavetune.onrender.com/ws`.
 - Regression coverage for lossless quality fallback ordering, including strict YouTube selection, Hi-Res downshift, and explicit-only Atmos / Data Saver tiers.
-- A responsive website screenshot gallery using real KatMusic Android screenshots, with static export configured for Cloudflare Pages.
+- A responsive website screenshot gallery using real WaveTune Android screenshots, with static export configured for Cloudflare Pages.
 
 ### Changed
 
-- **Arct Development branding.** Updated project credits, website footer, repository badges, security and conduct links, and issue/discussion destinations to point to the Arct Development organization.
+- **ARYNIS Arc branding.** Updated project credits, website footer, repository badges, security and conduct links, and issue/discussion destinations to point to the ARYNIS Arc organization.
 - Refined the app's visual system across navigation, masthead, home feed, shapes, stats, and search.
 - Restored the floating glass-pill bottom navigation dock.
 - Lyrics Stage is connected to synced lyrics controls and lyric source options.
-- Website canonical URL and Open Graph metadata now use `https://katmusic.pages.dev`; updated the website's Lucide dependency for React 19 compatibility.
+- Website canonical URL and Open Graph metadata now use `https://wavetune.pages.dev`; updated the website's Lucide dependency for React 19 compatibility.
 
 ### Fixed
 
@@ -130,14 +143,14 @@ All notable changes to KatMusic are documented here. The format follows
 ### Build and release
 
 - Added a dedicated `arm64-v8a` APK alongside the universal and Android 7–9 legacy packages.
-- Updated release documentation and repository links for the Arct Development organization.
+- Updated release documentation and repository links for the ARYNIS Arc organization.
 
 ### Added
 
-- **Branded startup sequence.** The supplied KatMusic logo animation is packaged as an Android raw video resource. After playback completes, the final emblem transitions into the static logo; the logo slides left as the “Kat Music” wordmark enters, before the app opens Login or Home.
+- **Branded startup sequence.** The supplied WaveTune logo animation is packaged as an Android raw video resource. After playback completes, the final emblem transitions into the static logo; the logo slides left as the “WaveTune” wordmark enters, before the app opens Login or Home.
 - **First-run experience preference.** Onboarding offers Classic and Modern appearance presets with animated selection feedback and a description of each mode. The choice is saved in the existing theme preferences.
-- **App-wide release update prompt.** The app checks the latest release from `Arct-Development/KatMusic` and can show the version and release-note preview on both Login and Home, with per-version dismissal.
-- Website shortcut in Settings → About, alongside Arct Development repository attribution.
+- **App-wide release update prompt.** The app checks the latest release from `grafixstudioexe/WaveTune` and can show the version and release-note preview on both Login and Home, with per-version dismissal.
+- Website shortcut in Settings → About, alongside ARYNIS Arc repository attribution.
 
 ### Changed
 
@@ -149,7 +162,7 @@ All notable changes to KatMusic are documented here. The format follows
 - Alternate player styles gained smoother style transitions, artwork breathing, timeline progress motion and synced-lyric word emphasis.
 - Listen Together now surfaces room members, host identity, playback metadata, shared queue state and guest track suggestions in its room screen.
 - Queue header copy is simplified; overflow and drag controls use consistent 40dp touch targets, icon sizing and alignment.
-- Public-facing repository and project links now point to the Arct Development organisation.
+- Public-facing repository and project links now point to the ARYNIS Arc organisation.
 
 ### Fixed
 
@@ -171,9 +184,9 @@ All notable changes to KatMusic are documented here. The format follows
 
 ### Website
 
-- Replaced simulated phone previews with real KatMusic Android screenshots and added a responsive screenshot gallery
+- Replaced simulated phone previews with real WaveTune Android screenshots and added a responsive screenshot gallery
 - Configured the website for Next.js static export and Cloudflare Pages deployment, publishing the generated `out` directory
-- Updated the site's canonical URL and Open Graph metadata for `https://katmusic.pages.dev`
+- Updated the site's canonical URL and Open Graph metadata for `https://wavetune.pages.dev`
 - Updated the website's Lucide icon dependency for React 19 compatibility and replaced the removed GitHub brand icon
 
 
@@ -197,7 +210,7 @@ All notable changes to KatMusic are documented here. The format follows
   content
 - (2.0.0 supersedes the earlier full-bleed, bottom-rounded header with a plain flat bar)
 - **Rubber-band overscroll** on the Home, Explore, Library, Search, Discover, Detail,
-  Stats, Friends, Local music and Downloads lists, ported from KatMusic; the platform's
+  Stats, Friends, Local music and Downloads lists, ported from WaveTune; the platform's
   own stretch is turned off so only one overscroll system runs at a time
 - Offline Home: the last successful feed is saved and restored on the next launch, with
   an "Offline — showing your saved feed" row and a retry action
@@ -243,13 +256,13 @@ All notable changes to KatMusic are documented here. The format follows
 
 ### Changed
 
-- Lyrics Stage is connected to KatMusic's synced lyrics controls and lyric source options
+- Lyrics Stage is connected to WaveTune's synced lyrics controls and lyric source options
 
 ## [2.0.0] - 2026-10-30
 
 ### Changed
 
-- **New base: the native audio engine and interface now live in KatMusic.** Playback runs
+- **New base: the native audio engine and interface now live in WaveTune.** Playback runs
   through the native audio engine with the parametric equaliser, crossfade/automix planner,
   USB exclusive output and loudness processing; lyrics, downloads, discovery, genres,
   artists, albums, playlists, podcasts, podcasts video, jam sessions and the YouTube
@@ -333,7 +346,7 @@ All notable changes to KatMusic are documented here. The format follows
   morphs, player transport uses the elastic push row, selection chips morph shape as well
   as colour, stats and quick-pick rows use segmented controls, and loading/progress now use
   shape-morph and wavy indicators
-- The KatMusic logo is now the launcher icon (adaptive, black background) and appears in
+- The WaveTune logo is now the launcher icon (adaptive, black background) and appears in
   Settings → About
 - Housekeeping: removed the committed crash log, the local chat transcript, the unused
   vector launcher art and the empty scratch folders

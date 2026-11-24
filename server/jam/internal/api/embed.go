@@ -26,8 +26,8 @@ func (h *Handler) handleEmbedJam(w http.ResponseWriter, r *http.Request) {
 	base := publicBaseURL()
 	body := embedShell(
 		"Join Jam "+code,
-		"KatMusic Jam",
-		"Listen together in sync. Enter code "+code+" in KatMusic.",
+		"WaveTune Jam",
+		"Listen together in sync. Enter code "+code+" in WaveTune.",
 		code,
 		base+"/?code="+code,
 	)
@@ -46,11 +46,11 @@ func (h *Handler) handleEmbedSong(w http.ResponseWriter, r *http.Request) {
 		title = "Shared song"
 	}
 	if artist == "" {
-		artist = "KatMusic"
+		artist = "WaveTune"
 	}
-	link := "https://katmusic.pages.dev/share.html?v=" + url.QueryEscape(videoID) +
+	link := "https://wavetune.pages.dev/share.html?v=" + url.QueryEscape(videoID) +
 		"&title=" + url.QueryEscape(title) + "&artist=" + url.QueryEscape(artist)
-	body := embedShell(title, artist, "Open this song in KatMusic.", "", link)
+	body := embedShell(title, artist, "Open this song in WaveTune.", "", link)
 	writeEmbed(w, body)
 }
 
@@ -71,7 +71,7 @@ func embedShell(title, subtitle, hint, code, link string) string {
 	return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>` + e(title) + ` · KatMusic</title>
+<title>` + e(title) + ` · WaveTune</title>
 <style>
 :root{color-scheme:dark}*{box-sizing:border-box}
 body{margin:0;padding:16px;background:#0a0a0c;color:#f4f4f6;font:15px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh}
@@ -82,8 +82,8 @@ h1{font-size:20px;margin:14px 0 4px}.sub{color:#a0a0ac;margin:0 0 14px}
 .hint{color:#a0a0ac;font-size:13px}
 a{display:inline-block;margin-top:14px;padding:11px 18px;border-radius:999px;background:#c7f56b;color:#0a0a0c;text-decoration:none;font-weight:700}
 </style></head><body><div class="card">
-<div class="brand">KatMusic <span>Jam</span></div>
+<div class="brand">WaveTune <span>Jam</span></div>
 <h1>` + e(title) + `</h1><p class="sub">` + e(subtitle) + `</p>` + codeBlock + `
-<p class="hint">` + e(hint) + `</p><a href="` + e(link) + `" target="_blank" rel="noopener">Open in KatMusic</a>
+<p class="hint">` + e(hint) + `</p><a href="` + e(link) + `" target="_blank" rel="noopener">Open in WaveTune</a>
 </div></body></html>`
 }

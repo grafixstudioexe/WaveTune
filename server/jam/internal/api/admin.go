@@ -14,7 +14,7 @@ import (
 	gosync "sync"
 	"time"
 
-	"katmusic/jam/internal/rooms"
+	"wavetune/jam/internal/rooms"
 )
 
 // Admin panel for every active Jam: see listeners, now playing and chat;

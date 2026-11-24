@@ -9,7 +9,7 @@
 #endif
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     AutoMixEngine engine;
     engine.configure(48000.0);
     engine.setEnabled(true);

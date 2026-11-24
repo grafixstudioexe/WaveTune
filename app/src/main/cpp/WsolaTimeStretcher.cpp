@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -198,4 +198,4 @@ std::size_t WsolaTimeStretcher::flush(float* outputStereo, std::size_t outputCap
     return framesToCopy;
 }
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

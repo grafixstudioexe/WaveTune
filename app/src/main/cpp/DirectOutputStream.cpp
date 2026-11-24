@@ -9,7 +9,7 @@
 #include <cstring>
 #include <vector>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 namespace {
 
 constexpr const char* kTag = "DirectOutputStream";
@@ -417,4 +417,4 @@ void DirectOutputStream::onErrorAfterClose(oboe::AudioStream*, oboe::Result erro
     started_.store(false, std::memory_order_release);
 }
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

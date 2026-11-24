@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"katmusic/jam/internal/rooms"
+	"wavetune/jam/internal/rooms"
 )
 
 func newMux() *http.ServeMux {
@@ -66,10 +66,10 @@ func TestIndexInjectsPreviewMeta(t *testing.T) {
 	mux.ServeHTTP(rec, httptest.NewRequest("GET", "/?code=wave01", nil))
 	body := rec.Body.String()
 	for _, want := range []string{
-		`og:image" content="https://katmusic.onrender.com/og/WAVE01.png"`,
-		`og:title" content="Join room WAVE01 on KatMusic Jam"`,
+		`og:image" content="https://wavetune.onrender.com/og/WAVE01.png"`,
+		`og:title" content="Join room WAVE01 on WaveTune Jam"`,
 		`twitter:card" content="summary_large_image"`,
-		`og:url" content="https://katmusic.onrender.com/?code=WAVE01"`,
+		`og:url" content="https://wavetune.onrender.com/?code=WAVE01"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("missing %s", want)
@@ -91,7 +91,7 @@ func TestIndexInjectsPreviewMeta(t *testing.T) {
 
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, httptest.NewRequest("GET", "/?code=WAVE01", nil))
-	if !strings.Contains(rec.Body.String(), "Join room WAVE01 on KatMusic Jam") {
+	if !strings.Contains(rec.Body.String(), "Join room WAVE01 on WaveTune Jam") {
 		t.Fatal("room title expected")
 	}
 }

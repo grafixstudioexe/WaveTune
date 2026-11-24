@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"katmusic/jam/internal/store"
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/store"
+	"wavetune/jam/internal/wire"
 )
 
 var (

@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 class WsolaTimeStretcher final {
 public:
@@ -52,4 +52,4 @@ private:
     std::size_t findBestOffset(std::size_t nominalPos) const noexcept;
 };
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

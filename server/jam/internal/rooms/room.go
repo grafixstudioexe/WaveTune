@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // Room manages the concurrent state of a live listening session.

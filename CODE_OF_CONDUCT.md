@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We want KatMusic to be a welcoming project for everyone, regardless of experience
+We want WaveTune to be a welcoming project for everyone, regardless of experience
 level, background, identity or language.
 
 ## Expected behaviour
@@ -22,7 +22,7 @@ level, background, identity or language.
 ## Enforcement
 
 Maintainers may edit or remove comments, close issues and block accounts that violate
-this document. Report problems to the maintainer via a private channel through the [Arct Development GitHub organization](https://github.com/Arct-Development). Reports are handled discreetly.
+this document. Report problems to the maintainer via a private channel through the [ARYNIS Arc GitHub organization](https://github.com/grafixstudioexe). Reports are handled discreetly.
 
 ## Attribution
 

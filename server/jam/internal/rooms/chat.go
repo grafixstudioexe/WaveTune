@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // DefaultChatHistoryLimit is how many recent messages a joining app receives.

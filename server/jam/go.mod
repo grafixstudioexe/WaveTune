@@ -1,4 +1,4 @@
-module katmusic/jam
+module wavetune/jam
 
 go 1.27.0
 

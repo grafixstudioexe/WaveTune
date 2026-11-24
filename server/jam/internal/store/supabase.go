@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // RoomSnapshot is the durable part of a room. Live connections, hosts and

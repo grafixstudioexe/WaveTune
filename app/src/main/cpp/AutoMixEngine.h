@@ -15,7 +15,7 @@
 #include <mutex>
 #include <algorithm>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 enum class AutoMixState : int {
     Idle = 0,
@@ -241,4 +241,4 @@ private:
     [[nodiscard]] static float applySoftKneeLimiter(float x) noexcept;
 };
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

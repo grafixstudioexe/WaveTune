@@ -1,4 +1,4 @@
-# Contributing to KatMusic
+# Contributing to WaveTune
 
 Thanks for wanting to help. This document keeps contributions consistent and easy to review.
 
@@ -9,7 +9,7 @@ machine to ship one.
 
 1. Fork the repository and push a branch to your fork.
 2. Open **Actions → Build APK → Run workflow** and wait for the run to finish.
-3. Download the `katmusic-debug-apk` artifact from that run and unzip it to get
+3. Download the `wavetune-debug-apk` artifact from that run and unzip it to get
    `app-debug.apk`.
 
 Pull requests run the same workflow (unit tests plus a debug build), and its log is the
@@ -48,5 +48,5 @@ Participation is covered by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Licensing
 
-KatMusic is licensed under the GNU General Public License v3.0. By contributing you
+WaveTune is licensed under the GNU General Public License v3.0. By contributing you
 agree that your work is distributed under the same licence.

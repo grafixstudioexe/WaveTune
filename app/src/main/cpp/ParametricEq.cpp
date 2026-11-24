@@ -5,7 +5,7 @@
 #include <cstring>
 #include <mutex>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 namespace {
 
 constexpr double kPi = 3.1415926535897932384626433832795;
@@ -356,4 +356,4 @@ double ParametricEq::responseDb(double sampleRate, double frequency) noexcept {
     return 20.0 * std::log10(std::max(gain, 1.0e-12));
 }
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

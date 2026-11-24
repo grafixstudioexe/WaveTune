@@ -1,4 +1,4 @@
-# KatMusic Jam server
+# WaveTune Jam server
 
 Go WebSocket service for **Listen Together**. It synchronizes playback position, queue, host roles and chat. Audio is never relayed: every listener resolves the track through their own authorized provider.
 

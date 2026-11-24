@@ -25,7 +25,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KatMusic"
+rootProject.name = "WaveTune"
 include(":app")
 include(":shared")
 include(":desktop")

@@ -1,9 +1,9 @@
 (() => {
   "use strict";
-  /* Report-a-bug. Reports are emailed to the KatMusic team through FormSubmit
+  /* Report-a-bug. Reports are emailed to the WaveTune team through FormSubmit
      (a free form-to-email relay), so the visitor needs no GitHub account.
      If the relay is unreachable, a pre-filled email draft is offered instead. */
-  const TO = "arctdevelopments@gmail.com";
+  const TO = "team@wavetune.app";
   const FORM_KEY = "f9f2109595b7c5311adb5f28cc899230"; // FormSubmit alias for the address above (from the activation email)
   const ENDPOINT = `https://formsubmit.co/ajax/${FORM_KEY}`;
   const $ = (s, r = document) => r.querySelector(s);
@@ -14,7 +14,7 @@
               steps: $("#rpSteps"), exp: $("#rpExp"), dev: $("#rpDev"), honey: $("#rpHoney") };
   const status = $("#rpStatus"), prev = $("#rpPrev"), go = $("#rpGo");
   const eT = $("#rpTitleErr"), eS = $("#rpStepsErr");
-  const COOLDOWN_KEY = "kat-rp-last";
+  const COOLDOWN_KEY = "wt-rp-last";
 
   (() => {                                   // preselect the visitor's platform
     const ua = navigator.userAgent; let p = "Android";
@@ -43,7 +43,7 @@
       `- Area: ${f.area.value}`, `- Platform: ${f.plat.value}`,
       `- App version: ${clean(f.ver.value) || "Not provided"}`, `- Severity: ${severity()}`,
       ...(f.dev.checked ? ["", "Browser info:", deviceInfo()] : []),
-      "", "Reported via the KatMusic website."
+      "", "Reported via the WaveTune website."
     ].join("\n");
     return { title: `[Bug] ${title}`, body };
   }
@@ -95,7 +95,7 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.success === "false" || data.success === false) throw new Error("relay");
       try { localStorage.setItem(COOLDOWN_KEY, String(Date.now())); } catch {}
-      say("Thank you — your report was sent to the KatMusic team.", "ok");
+      say("Thank you — your report was sent to the WaveTune team.", "ok");
       form.reset();
     } catch {
       say(`Couldn't send automatically. <a href="${mailto(r)}">Open an email draft</a> or use <b>Copy report</b> and send it to ${TO}.`, "warn");

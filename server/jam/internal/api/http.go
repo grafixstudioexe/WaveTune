@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"katmusic/jam/internal/rooms"
+	"wavetune/jam/internal/rooms"
 )
 
 // Config configures the server runtime parameters.
@@ -57,7 +57,7 @@ func (s *Server) Start() error {
 
 	go s.hub.RunCleanupLoop(ctx, s.cfg.CleanupInterval)
 
-	slog.Info("KatMusic Jam server listening", "addr", s.httpServer.Addr)
+	slog.Info("WaveTune Jam server listening", "addr", s.httpServer.Addr)
 	if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("http server failure: %w", err)
 	}

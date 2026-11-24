@@ -9,7 +9,7 @@
 #endif
 
 void testFrequency(double freqHz, double expectedHpGain, double expectedLpGain) {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     LinkwitzRileyFilter filter;
     filter.configure(48000.0, 160.0);
 
@@ -48,7 +48,7 @@ void testFrequency(double freqHz, double expectedHpGain, double expectedLpGain) 
 }
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
 
     // 1. Deep Bass (50 Hz): Low should be ~1.0, High should be strongly attenuated (< 0.05)
     testFrequency(50.0, 0.02, 0.99);

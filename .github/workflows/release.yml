@@ -6,24 +6,24 @@ on:
       tag_name:
         description: 'Release version (must match app/build.gradle.kts)'
         required: true
-        default: '2.6.5'
+        default: '1.0.0'
       release_name:
         description: 'Public release title'
         required: true
-        default: 'KatMusic 2.6.5'
+        default: 'WaveTune 1.0.0'
       release_notes:
         description: 'Changelog / Release Notes'
         required: false
         default: |
-          ## KatMusic 2.6.5
+          ## WaveTune 1.0.0
 
           ### Added
-          - A desktop application for Windows, Linux and macOS built on the same Kotlin Multiplatform Compose UI as Android, with a local library, search, queue, playlists, downloads, home feed, lyrics and settings.
-          - Desktop YouTube playback through the NewPipe-fork extractors, with Piped powering the home feed and music search.
-          - Phone → desktop YouTube sign-in by scanning a QR code with the Android app; the session transfers encrypted over the local network and survives restarts.
-          - Portable liquid-glass chrome for the desktop player dock and navigation.
-          - Distinct Android Vinyl and Cassette decks plus rebuilt Poster, Timeline, Lyrics, Artwork and Canvas players; Classic is unchanged.
-          - Desktop Jam controls, Code 128 KatMusic Codes, Last.fm, regional Discover, artist radio/albums, public playlist imports, media keys, tray controls and PNG lyric cards.
+          - YouTube Music Liked Songs import: the complete liked library on first sign-in, then incremental checks for songs liked in YouTube Music's own apps.
+          - Likes and unlikes made offline or signed out are queued and sent to YouTube Music on the next sync pass.
+          - Optional Spotify Liked Songs auto-sync, which matches only new Spotify likes instead of re-reading the whole library.
+
+          ### Changed
+          - Rebranded as WaveTune by ARYNIS Arc (`com.arynis.wavetune`).
 
           ### Build
           - Universal, ARM64 and Android 7–9 legacy APK packages.
@@ -56,7 +56,7 @@ jobs:
             echo "::error::Requested tag $REQUESTED_TAG does not match app version $APP_VERSION"
             exit 1
           fi
-          echo "Preparing KatMusic $APP_VERSION"
+          echo "Preparing WaveTune $APP_VERSION"
           
       - name: Set up JDK 17
         uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
@@ -87,15 +87,15 @@ jobs:
           TAG="${{ inputs.tag_name }}"
           # Universal release (Android 10+, R8 + ProGuard + shrinkResources)
           if [ -f "app/build/outputs/apk/release/app-release-signed.apk" ]; then
-            cp app/build/outputs/apk/release/app-release-signed.apk final_apk/KatMusic-v${TAG}-universal.apk
+            cp app/build/outputs/apk/release/app-release-signed.apk final_apk/WaveTune-v${TAG}-universal.apk
           else
-            cp app/build/outputs/apk/release/app-release.apk final_apk/KatMusic-v${TAG}-universal.apk
+            cp app/build/outputs/apk/release/app-release.apk final_apk/WaveTune-v${TAG}-universal.apk
           fi
           # Universal uncompressed variant (Android 10+, raw debuggable/unminified)
           if [ -f "app/build/outputs/apk/rawRelease/app-rawRelease-signed.apk" ]; then
-            cp app/build/outputs/apk/rawRelease/app-rawRelease-signed.apk final_apk/KatMusic-v${TAG}-universal-uncompressed.apk
+            cp app/build/outputs/apk/rawRelease/app-rawRelease-signed.apk final_apk/WaveTune-v${TAG}-universal-uncompressed.apk
           else
-            cp app/build/outputs/apk/rawRelease/app-rawRelease.apk final_apk/KatMusic-v${TAG}-universal-uncompressed.apk
+            cp app/build/outputs/apk/rawRelease/app-rawRelease.apk final_apk/WaveTune-v${TAG}-universal-uncompressed.apk
           fi
           rm -rf app/build/outputs/apk/release/*
 
@@ -124,9 +124,9 @@ jobs:
         run: |
           TAG="${{ inputs.tag_name }}"
           if [ -f "app/build/outputs/apk/release/app-release-signed.apk" ]; then
-            cp app/build/outputs/apk/release/app-release-signed.apk final_apk/KatMusic-v${TAG}-android7.apk
+            cp app/build/outputs/apk/release/app-release-signed.apk final_apk/WaveTune-v${TAG}-android7.apk
           else
-            cp app/build/outputs/apk/release/app-release.apk final_apk/KatMusic-v${TAG}-android7.apk
+            cp app/build/outputs/apk/release/app-release.apk final_apk/WaveTune-v${TAG}-android7.apk
           fi
           ls -lh final_apk/
 
@@ -153,7 +153,7 @@ jobs:
             echo "::error::ARM64-only release APK unexpectedly contains 32-bit ARM libraries"
             exit 1
           fi
-          cp "$APK" "final_apk/KatMusic-v${TAG}-arm64-v8a.apk"
+          cp "$APK" "final_apk/WaveTune-v${TAG}-arm64-v8a.apk"
           ls -lh final_apk/
 
       - name: Verify APK signatures + publish checksums
@@ -199,23 +199,23 @@ jobs:
 
           | Package | Recommended OS | Description |
           | :--- | :--- | :--- |
-          | **`KatMusic-v__TAG__-universal.apk`** (~22 MB) | **Android 10+ (Android 10 – 16+)** | **Standard Recommended Release.** R8-optimized universal APK for supported CPU architectures. |
-          | **`KatMusic-v__TAG__-arm64-v8a.apk`** | **Android 10+ (64-bit ARM)** | **ARM64 build.** Smaller ABI-specific package for arm64-v8a phones and tablets. |
-          | **`KatMusic-v__TAG__-universal-uncompressed.apk`** (~89 MB) | **Android 10+ (Android 10 – 16+)** | **Raw Release.** Unminified debuggable variant with uncompressed native libraries. |
-          | **`KatMusic-v__TAG__-android7.apk`** (~17 MB) | **Android 7.0 – 9.0 (Legacy)** | **Legacy Android 7.0+ Variant.** Built with compressed native libraries for older package managers. |
-          | `KatMusic-v__TAG__-windows-x64.msi` | Windows 10 / 11 (64-bit) | Signed installer — Start-menu shortcut and uninstall entry. |
-          | `KatMusic-v__TAG__-windows-x64-portable.zip` | Windows 10 / 11 (64-bit) | Portable desktop build — extract and run `KatMusic.exe`. |
-          | `KatMusic-v__TAG__-macos-arm64.dmg` | macOS 12+ (Apple silicon) | Apple-silicon disk image — drag `KatMusic.app` into Applications. |
-          | `KatMusic-v__TAG__-macos-x64.dmg` | macOS 12+ (Intel) | Intel disk image — drag `KatMusic.app` into Applications. |
-          | `KatMusic-v__TAG__-macos-*-portable.zip` | macOS 12+ | Unsigned `.app` bundle — right-click → Open on first launch. |
-          | `KatMusic-v__TAG__-linux-x64.deb` | Debian / Ubuntu 64-bit | Installer package with desktop menu entry. |
-          | `KatMusic-v__TAG__-linux-x64-portable.tar.gz` | Linux (64-bit) | Portable desktop bundle — extract and run the KatMusic binary. |
+          | **`WaveTune-v__TAG__-universal.apk`** (~22 MB) | **Android 10+ (Android 10 – 16+)** | **Standard Recommended Release.** R8-optimized universal APK for supported CPU architectures. |
+          | **`WaveTune-v__TAG__-arm64-v8a.apk`** | **Android 10+ (64-bit ARM)** | **ARM64 build.** Smaller ABI-specific package for arm64-v8a phones and tablets. |
+          | **`WaveTune-v__TAG__-universal-uncompressed.apk`** (~89 MB) | **Android 10+ (Android 10 – 16+)** | **Raw Release.** Unminified debuggable variant with uncompressed native libraries. |
+          | **`WaveTune-v__TAG__-android7.apk`** (~17 MB) | **Android 7.0 – 9.0 (Legacy)** | **Legacy Android 7.0+ Variant.** Built with compressed native libraries for older package managers. |
+          | `WaveTune-v__TAG__-windows-x64.msi` | Windows 10 / 11 (64-bit) | Signed installer — Start-menu shortcut and uninstall entry. |
+          | `WaveTune-v__TAG__-windows-x64-portable.zip` | Windows 10 / 11 (64-bit) | Portable desktop build — extract and run `WaveTune.exe`. |
+          | `WaveTune-v__TAG__-macos-arm64.dmg` | macOS 12+ (Apple silicon) | Apple-silicon disk image — drag `WaveTune.app` into Applications. |
+          | `WaveTune-v__TAG__-macos-x64.dmg` | macOS 12+ (Intel) | Intel disk image — drag `WaveTune.app` into Applications. |
+          | `WaveTune-v__TAG__-macos-*-portable.zip` | macOS 12+ | Unsigned `.app` bundle — right-click → Open on first launch. |
+          | `WaveTune-v__TAG__-linux-x64.deb` | Debian / Ubuntu 64-bit | Installer package with desktop menu entry. |
+          | `WaveTune-v__TAG__-linux-x64-portable.tar.gz` | Linux (64-bit) | Portable desktop bundle — extract and run the WaveTune binary. |
 
           > [!WARNING]
-          > **Notice for Android 7.0 – 9.0 Users (`KatMusic-v__TAG__-android7.apk`):**
+          > **Notice for Android 7.0 – 9.0 Users (`WaveTune-v__TAG__-android7.apk`):**
           > - Hardware GPU glassmorphism / live blur requires Android 12+ and is automatically replaced with translucent dark canvas acrylic styling on older devices.
           > - The media notification uses classic Android media controls rather than Android 13's wavy-progress player.
-          > - For any device running Android 10 or newer, please install the standard **`KatMusic-v__TAG__-universal.apk`** for optimal performance and memory efficiency.
+          > - For any device running Android 10 or newer, please install the standard **`WaveTune-v__TAG__-universal.apk`** for optimal performance and memory efficiency.
           EOF
 
           sed -i "s/__TAG__/${TAG}/g" notice.md
@@ -338,23 +338,23 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           installer="$(ls ${{ matrix.installer_glob }} | head -n1)"
-          cp "$installer" "dist/KatMusic-v${{ inputs.tag_name }}-${{ matrix.slug }}.${{ matrix.installer_ext }}"
+          cp "$installer" "dist/WaveTune-v${{ inputs.tag_name }}-${{ matrix.slug }}.${{ matrix.installer_ext }}"
 
           case "${{ matrix.portable }}" in
             zip)
               if [[ "${{ runner.os }}" == "Windows" ]]; then
                 mkdir -p stage
-                cp -R desktop/build/compose/binaries/main/app/. stage/KatMusic/
-                (cd stage && 7z a -tzip "../dist/KatMusic-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.zip" KatMusic > /dev/null)
+                cp -R desktop/build/compose/binaries/main/app/. stage/WaveTune/
+                (cd stage && 7z a -tzip "../dist/WaveTune-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.zip" WaveTune > /dev/null)
               else
                 ditto -c -k --sequesterRsrc --keepParent \
-                  desktop/build/compose/binaries/main/app/KatMusic.app \
-                  "dist/KatMusic-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.zip"
+                  desktop/build/compose/binaries/main/app/WaveTune.app \
+                  "dist/WaveTune-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.zip"
               fi
               ;;
             tar.gz)
-              tar -czf "dist/KatMusic-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.tar.gz" \
-                -C desktop/build/compose/binaries/main/app KatMusic
+              tar -czf "dist/WaveTune-v${{ inputs.tag_name }}-${{ matrix.slug }}-portable.tar.gz" \
+                -C desktop/build/compose/binaries/main/app WaveTune
               ;;
           esac
           ls -lh dist

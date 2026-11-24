@@ -41,7 +41,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/figtree"
                         android:letterSpacing="0.12"
-                        android:text="KATMUSIC"
+                        android:text="WAVETUNE"
                         android:textAllCaps="true"
                         android:textColor="@color/widget_accent"
                         android:textSize="10sp" />

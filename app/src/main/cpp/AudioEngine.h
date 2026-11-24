@@ -14,7 +14,7 @@
 #include <mutex>
 #include <vector>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 class AudioEngine final : public oboe::AudioStreamDataCallback,
                           public oboe::AudioStreamErrorCallback {
@@ -190,4 +190,4 @@ private:
     std::size_t underrunDecayIntervalFrames_{0};
 };
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

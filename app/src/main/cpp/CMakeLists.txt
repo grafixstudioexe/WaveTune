@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(katmusic_audio LANGUAGES C CXX)
+project(wavetune_audio LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,7 +42,7 @@ if(NOT soxr_source_POPULATED)
 endif()
 
 add_library(
-    katmusic_audio
+    wavetune_audio
     SHARED
     AudioEngine.cpp
     DirectOutputBridge.cpp
@@ -60,14 +60,14 @@ add_library(
 )
 
 target_include_directories(
-    katmusic_audio
+    wavetune_audio
     PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${soxr_source_SOURCE_DIR}/src"
 )
 
 target_compile_options(
-    katmusic_audio
+    wavetune_audio
     PRIVATE
     -Wall
     -Wextra
@@ -77,7 +77,7 @@ target_compile_options(
 )
 
 target_link_libraries(
-    katmusic_audio
+    wavetune_audio
     PRIVATE
     oboe::oboe
     soxr

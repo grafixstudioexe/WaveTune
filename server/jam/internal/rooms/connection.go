@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 const (

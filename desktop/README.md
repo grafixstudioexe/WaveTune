@@ -1,6 +1,6 @@
-# KatMusic Desktop (Compose Multiplatform)
+# WaveTune Desktop (Compose Multiplatform)
 
-The Windows, Linux and macOS build of KatMusic. It is a Compose Desktop
+The Windows, Linux and macOS build of WaveTune. It is a Compose Desktop
 (`:desktop`) application that renders the **shared Compose UI** from
 `shared/src/commonMain` — the same theme, typography, shapes, motion, components,
 navigation and screens the Android app uses.

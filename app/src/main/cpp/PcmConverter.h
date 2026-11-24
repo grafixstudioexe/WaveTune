@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 enum class PcmFormat : std::int32_t {
     Int16 = 0,
@@ -137,4 +137,4 @@ public:
     }
 };
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

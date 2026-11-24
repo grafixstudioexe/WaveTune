@@ -108,7 +108,7 @@ jobs:
             VERSION="${VERSION:-0.0.0}-${GITHUB_SHA::7}"
           fi
           echo "APP_VERSION=${VERSION}" >> "$GITHUB_ENV"
-          echo "Packaging KatMusic v${VERSION}"
+          echo "Packaging WaveTune v${VERSION}"
 
       - name: Test shared logic and desktop
         run: ./gradlew :shared:desktopTest :desktop:test --stacktrace
@@ -121,23 +121,23 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           installer="$(ls ${{ matrix.installer_glob }} | head -n1)"
-          cp "$installer" "dist/KatMusic-v${APP_VERSION}-${{ matrix.slug }}.${{ matrix.installer_ext }}"
+          cp "$installer" "dist/WaveTune-v${APP_VERSION}-${{ matrix.slug }}.${{ matrix.installer_ext }}"
 
           case "${{ matrix.portable }}" in
             zip)
               if [[ "${{ runner.os }}" == "Windows" ]]; then
                 mkdir -p stage
-                cp -R desktop/build/compose/binaries/main/app/. stage/KatMusic/
-                (cd stage && 7z a -tzip "../dist/KatMusic-v${APP_VERSION}-${{ matrix.slug }}-portable.zip" KatMusic > /dev/null)
+                cp -R desktop/build/compose/binaries/main/app/. stage/WaveTune/
+                (cd stage && 7z a -tzip "../dist/WaveTune-v${APP_VERSION}-${{ matrix.slug }}-portable.zip" WaveTune > /dev/null)
               else
                 ditto -c -k --sequesterRsrc --keepParent \
-                  desktop/build/compose/binaries/main/app/KatMusic.app \
-                  "dist/KatMusic-v${APP_VERSION}-${{ matrix.slug }}-portable.zip"
+                  desktop/build/compose/binaries/main/app/WaveTune.app \
+                  "dist/WaveTune-v${APP_VERSION}-${{ matrix.slug }}-portable.zip"
               fi
               ;;
             tar.gz)
-              tar -czf "dist/KatMusic-v${APP_VERSION}-${{ matrix.slug }}-portable.tar.gz" \
-                -C desktop/build/compose/binaries/main/app KatMusic
+              tar -czf "dist/WaveTune-v${APP_VERSION}-${{ matrix.slug }}-portable.tar.gz" \
+                -C desktop/build/compose/binaries/main/app WaveTune
               ;;
           esac
           ls -lh dist
@@ -175,7 +175,7 @@ jobs:
         run: |
           gh release create "${GITHUB_REF_NAME}" dist/* \
             --repo "${GITHUB_REPOSITORY}" \
-            --title "KatMusic ${GITHUB_REF_NAME}" \
+            --title "WaveTune ${GITHUB_REF_NAME}" \
             --generate-notes \
             || gh release upload "${GITHUB_REF_NAME}" dist/* \
               --repo "${GITHUB_REPOSITORY}" --clobber

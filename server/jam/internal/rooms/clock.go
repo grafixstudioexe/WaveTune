@@ -1,7 +1,7 @@
 package rooms
 
 import (
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // MaxTransitCompensationMs is the upper bound on network delay compensation (3 seconds).

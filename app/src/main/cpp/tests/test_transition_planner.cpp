@@ -11,8 +11,8 @@
 #endif
 
 int main() {
-    using namespace katmusic::audio;
-    using namespace katmusic;
+    using namespace wavetune::audio;
+    using namespace wavetune;
     std::cout << "Testing Native C++ Automix Engine...\n";
 
     const double sampleRate = 48000.0;

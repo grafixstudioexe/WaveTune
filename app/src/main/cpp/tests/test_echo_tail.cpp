@@ -5,7 +5,7 @@
 #include <iostream>
 
 int main() {
-    using namespace katmusic::audio;
+    using namespace wavetune::audio;
     EchoTailProcessor echo;
     echo.configure(48000.0, 120.0f); // 120 BPM, delay ~375ms (18000 samples)
     echo.setEnabled(true);

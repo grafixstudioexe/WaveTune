@@ -7,7 +7,7 @@
 #include <cstring>
 #include <limits>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 namespace {
 
 constexpr double kPi = 3.1415926535897932384626433832795;
@@ -857,4 +857,4 @@ void AudioEngine::buildFadeCurve(std::int32_t sampleRate) {
     }
 }
 
-}  // namespace katmusic::audio
+}  // namespace wavetune::audio

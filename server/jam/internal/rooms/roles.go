@@ -1,7 +1,7 @@
 package rooms
 
 import (
-	"katmusic/jam/internal/wire"
+	"wavetune/jam/internal/wire"
 )
 
 // GrantCoHost lets the main host promote one other participant to co-host.

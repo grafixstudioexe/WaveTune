@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 
-namespace katmusic::audio {
+namespace wavetune::audio {
 
 struct BeatDetectionResult final {
     float bpm{120.0F};
@@ -59,4 +59,4 @@ private:
     void updateAutocorrelation() noexcept;
 };
 
-} // namespace katmusic::audio
+} // namespace wavetune::audio

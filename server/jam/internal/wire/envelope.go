@@ -104,7 +104,7 @@ type ChatMessage struct {
 	ReplyTo   *ChatReply `json:"reply_to,omitempty"`
 }
 
-// TrackInfo models a playable song or media item in KatMusic.
+// TrackInfo models a playable song or media item in WaveTune.
 type TrackInfo struct {
 	ID          string `json:"id"`
 	Title       string `json:"title"`

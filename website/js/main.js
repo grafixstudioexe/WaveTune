@@ -1,11 +1,11 @@
 (() => {
   "use strict";
-  const REPO = "Arct-Development/KatMusic", API = `https://api.github.com/repos/${REPO}/releases?per_page=100`;
+  const REPO = "grafixstudioexe/WaveTune", API = `https://api.github.com/repos/${REPO}/releases?per_page=100`;
   const RELEASES = `https://github.com/${REPO}/releases`;
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const STYLES = [["Classic", "Full player, tabs, queue and controls."], ["Poster", "Large circular artwork and expressive track text."], ["Timeline", "Progress-led layout with oversized timestamps."], ["Lyrics Stage", "Lyrics-focused view with synced highlighting and source controls."], ["iPod", "A compact, tactile player inspired by classic music devices."], ["Full Video", "Immersive playback with animated Canvas artwork when available."]];
-  const TICKER = ["Listen Together", "Jam QR invites", "KatMusic Codes", "Liquid Glass UI", "YouTube Music catalogue", "Word-synced lyrics", "Shareable lyric cards", "Native C++ audio", "Parametric EQ", "Automix", "Offline downloads", "Six player styles", "Android · Windows · macOS · Linux", "Open source"];
+  const TICKER = ["Listen Together", "Jam QR invites", "WaveTune Codes", "Liquid Glass UI", "YouTube Music catalogue", "Word-synced lyrics", "Shareable lyric cards", "Native C++ audio", "Parametric EQ", "Automix", "Offline downloads", "Six player styles", "Android · Windows · macOS · Linux", "Open source"];
 
   /* ---------- platforms ---------- */
   const ICONS = {
@@ -17,7 +17,7 @@
   const PLATFORMS = [
     {
       id: "android", name: "Android", file: "APK package", button: "Download APK",
-      desc: "The full app, in your pocket: Listen Together, KatMusic Codes, synced lyrics, native audio and offline downloads.",
+      desc: "The full app, in your pocket: Listen Together, WaveTune Codes, synced lyrics, native audio and offline downloads.",
       specs: ["Android 10+", "ARM64 or universal", "Legacy for Android 7–9"],
       hint: "Signed APKs. Verify with the SHA-256 checksum from the release.",
       match: (n) => /\.apk$/i.test(n)
@@ -26,21 +26,21 @@
       id: "windows", name: "Windows", file: "Windows package", button: "Download for Windows",
       desc: "The same player, queue and lyrics on a desktop window, with Discord presence and system media keys.",
       specs: ["Windows 10 / 11", "64-bit", "Portable ZIP — no installer"],
-      hint: "Extract the ZIP anywhere, then run KatMusic.exe. The app registers its own katmusic:// links.",
+      hint: "Extract the ZIP anywhere, then run WaveTune.exe. The app registers its own wavetune:// links.",
       match: (n) => /windows/i.test(n) && /\.zip$/i.test(n)
     },
     {
       id: "macos", name: "macOS", file: "macOS package", button: "Download for macOS",
       desc: "A native window for the same library, with keyboard shortcuts tuned for macOS and URL-scheme handoff.",
       specs: ["macOS 12+", "Apple silicon + Intel", "Unsigned .app in a ZIP"],
-      hint: "Drag KatMusic.app into Applications. If Gatekeeper blocks the first launch, right-click → Open.",
+      hint: "Drag WaveTune.app into Applications. If Gatekeeper blocks the first launch, right-click → Open.",
       match: (n) => /macos|macosx|osx|darwin/i.test(n) && /\.(zip|dmg)$/i.test(n)
     },
     {
       id: "linux", name: "Linux", file: "Linux package", button: "Download for Linux",
       desc: "A 64-bit desktop build for the same account, playlists and downloads, packaged as a portable tarball.",
       specs: ["64-bit Linux", "Tarball bundle", "GTK 3 + media_kit runtime"],
-      hint: "Extract and run the KatMusic binary inside the folder. Install your distribution's GTK 3 and libmpv packages if it refuses to start.",
+      hint: "Extract and run the WaveTune binary inside the folder. Install your distribution's GTK 3 and libmpv packages if it refuses to start.",
       match: (n) => /linux/i.test(n) && /\.(tar\.gz|tgz|zip|appimage)$/i.test(n)
     }
   ];
@@ -52,18 +52,18 @@
     ],
     windows: [
       ["Download the ZIP", "Grab the Windows package above — it already contains everything the app needs."],
-      ["Extract and run", "Unzip the folder anywhere and launch KatMusic.exe. No installer, no admin rights."],
-      ["Sign in and pin it", "Sign in or continue as guest, then pin KatMusic to the taskbar for quick access."]
+      ["Extract and run", "Unzip the folder anywhere and launch WaveTune.exe. No installer, no admin rights."],
+      ["Sign in and pin it", "Sign in or continue as guest, then pin WaveTune to the taskbar for quick access."]
     ],
     macos: [
       ["Download the ZIP", "The macOS package is a signed-out .app bundle inside a ZIP."],
-      ["Move it to Applications", "Drag KatMusic.app into Applications. On first launch use right-click → Open if Gatekeeper asks."],
-      ["Sign in", "Sign in or continue as guest, then keep KatMusic in the Dock."]
+      ["Move it to Applications", "Drag WaveTune.app into Applications. On first launch use right-click → Open if Gatekeeper asks."],
+      ["Sign in", "Sign in or continue as guest, then keep WaveTune in the Dock."]
     ],
     linux: [
       ["Download the tarball", "The Linux package is a portable folder, not a distro-specific package."],
-      ["Extract and run", "Unpack it and start the KatMusic binary. Install GTK 3 and libmpv if a library is missing."],
-      ["Sign in", "Sign in or continue as guest. The app adds its own katmusic:// handler."]
+      ["Extract and run", "Unpack it and start the WaveTune binary. Install GTK 3 and libmpv if a library is missing."],
+      ["Sign in", "Sign in or continue as guest. The app adds its own wavetune:// handler."]
     ]
   };
 
@@ -188,7 +188,7 @@
       b.setAttribute("aria-controls", "asset");
     });
     $("#pChip").textContent = p.name;
-    $("#pName").textContent = `KatMusic for ${p.name}`;
+    $("#pName").textContent = `WaveTune for ${p.name}`;
     $("#pDesc").textContent = p.desc;
     $("#pSpecs").innerHTML = p.specs.map((s) => `<li>${s}</li>`).join("");
     $("#assetLabel").textContent = p.file;
@@ -259,13 +259,13 @@
 
   async function loadRelease() {
     try {
-      let data; const c = sessionStorage.getItem("kat-rel");
+      let data; const c = sessionStorage.getItem("wt-rel");
       if (c) { const p = JSON.parse(c); if (Date.now() - p.t < 30000) data = p.d; }   // short cache keeps the download total fresh
       if (!data) {
         const r = await fetch(API, { headers: { Accept: "application/vnd.github+json" } });
         if (!r.ok) throw new Error(r.status);
         data = (await r.json()).map((x) => ({ tag_name: x.tag_name, draft: x.draft, prerelease: x.prerelease, published_at: x.published_at, html_url: x.html_url, assets: x.assets.map((a) => ({ name: a.name, size: a.size, download_count: a.download_count, browser_download_url: a.browser_download_url })) }));
-        try { sessionStorage.setItem("kat-rel", JSON.stringify({ t: Date.now(), d: data })); } catch {}
+        try { sessionStorage.setItem("wt-rel", JSON.stringify({ t: Date.now(), d: data })); } catch {}
       }
       const ok = data.filter((r) => !r.draft && r.assets.some((a) => isDownloadable(a.name)));
       const release = ok.find((r) => !r.prerelease) || ok[0];
@@ -282,7 +282,7 @@
   // GitHub's API lags a few seconds behind a click, so refresh just after
   // one (bypassing the cache) instead of waiting for the 3-minute poll.
   const refreshAfterDownload = (delay) => setTimeout(() => {
-    sessionStorage.removeItem("kat-rel");
+    sessionStorage.removeItem("wt-rel");
     loadRelease();
   }, delay);
   $("#dlbtn").addEventListener("click", () => {
